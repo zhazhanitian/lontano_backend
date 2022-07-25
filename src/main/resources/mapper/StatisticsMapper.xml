@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.StatisticsMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.Statistics">
+    <!--@mbg.generated-->
+    <!--@Table `statistics`-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_address" jdbcType="VARCHAR" property="userAddress" />
+    <result column="total_flow_reward" jdbcType="DOUBLE" property="totalFlowReward" />
+    <result column="unreceived_flow_reward" jdbcType="DOUBLE" property="unreceivedFlowReward" />
+    <result column="total_experience_reward" jdbcType="DOUBLE" property="totalExperienceReward" />
+    <result column="unreceived_experience_reward" jdbcType="DOUBLE" property="unreceivedExperienceReward" />
+    <result column="total_pledge_reward" jdbcType="DOUBLE" property="totalPledgeReward" />
+    <result column="unreceived_pledge_reward" jdbcType="DOUBLE" property="unreceivedPledgeReward" />
+    <result column="unwithdraw_pledge" jdbcType="DOUBLE" property="unwithdrawPledge" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_address, total_flow_reward, unreceived_flow_reward, total_experience_reward, 
+    unreceived_experience_reward, total_pledge_reward, unreceived_pledge_reward, unwithdraw_pledge, 
+    user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from `statistics`
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from `statistics`
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Statistics" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into `statistics` (user_address, total_flow_reward, unreceived_flow_reward, 
+      total_experience_reward, unreceived_experience_reward, 
+      total_pledge_reward, unreceived_pledge_reward, 
+      unwithdraw_pledge, user_id)
+    values (#{userAddress,jdbcType=VARCHAR}, #{totalFlowReward,jdbcType=DOUBLE}, #{unreceivedFlowReward,jdbcType=DOUBLE}, 
+      #{totalExperienceReward,jdbcType=DOUBLE}, #{unreceivedExperienceReward,jdbcType=DOUBLE}, 
+      #{totalPledgeReward,jdbcType=DOUBLE}, #{unreceivedPledgeReward,jdbcType=DOUBLE}, 
+      #{unwithdrawPledge,jdbcType=DOUBLE}, #{userId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Statistics" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into `statistics`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userAddress != null">
+        user_address,
+      </if>
+      <if test="totalFlowReward != null">
+        total_flow_reward,
+      </if>
+      <if test="unreceivedFlowReward != null">
+        unreceived_flow_reward,
+      </if>
+      <if test="totalExperienceReward != null">
+        total_experience_reward,
+      </if>
+      <if test="unreceivedExperienceReward != null">
+        unreceived_experience_reward,
+      </if>
+      <if test="totalPledgeReward != null">
+        total_pledge_reward,
+      </if>
+      <if test="unreceivedPledgeReward != null">
+        unreceived_pledge_reward,
+      </if>
+      <if test="unwithdrawPledge != null">
+        unwithdraw_pledge,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userAddress != null">
+        #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFlowReward != null">
+        #{totalFlowReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unreceivedFlowReward != null">
+        #{unreceivedFlowReward,jdbcType=DOUBLE},
+      </if>
+      <if test="totalExperienceReward != null">
+        #{totalExperienceReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unreceivedExperienceReward != null">
+        #{unreceivedExperienceReward,jdbcType=DOUBLE},
+      </if>
+      <if test="totalPledgeReward != null">
+        #{totalPledgeReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unreceivedPledgeReward != null">
+        #{unreceivedPledgeReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unwithdrawPledge != null">
+        #{unwithdrawPledge,jdbcType=DOUBLE},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.Statistics">
+    <!--@mbg.generated-->
+    update `statistics`
+    <set>
+      <if test="userAddress != null">
+        user_address = #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFlowReward != null">
+        total_flow_reward = #{totalFlowReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unreceivedFlowReward != null">
+        unreceived_flow_reward = #{unreceivedFlowReward,jdbcType=DOUBLE},
+      </if>
+      <if test="totalExperienceReward != null">
+        total_experience_reward = #{totalExperienceReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unreceivedExperienceReward != null">
+        unreceived_experience_reward = #{unreceivedExperienceReward,jdbcType=DOUBLE},
+      </if>
+      <if test="totalPledgeReward != null">
+        total_pledge_reward = #{totalPledgeReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unreceivedPledgeReward != null">
+        unreceived_pledge_reward = #{unreceivedPledgeReward,jdbcType=DOUBLE},
+      </if>
+      <if test="unwithdrawPledge != null">
+        unwithdraw_pledge = #{unwithdrawPledge,jdbcType=DOUBLE},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.Statistics">
+    <!--@mbg.generated-->
+    update `statistics`
+    set user_address = #{userAddress,jdbcType=VARCHAR},
+      total_flow_reward = #{totalFlowReward,jdbcType=DOUBLE},
+      unreceived_flow_reward = #{unreceivedFlowReward,jdbcType=DOUBLE},
+      total_experience_reward = #{totalExperienceReward,jdbcType=DOUBLE},
+      unreceived_experience_reward = #{unreceivedExperienceReward,jdbcType=DOUBLE},
+      total_pledge_reward = #{totalPledgeReward,jdbcType=DOUBLE},
+      unreceived_pledge_reward = #{unreceivedPledgeReward,jdbcType=DOUBLE},
+      unwithdraw_pledge = #{unwithdrawPledge,jdbcType=DOUBLE},
+      user_id = #{userId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

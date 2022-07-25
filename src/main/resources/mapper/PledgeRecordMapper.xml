@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.PledgeRecordMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.PledgeRecord">
+    <!--@mbg.generated-->
+    <!--@Table pledge_record-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_address" jdbcType="VARCHAR" property="userAddress" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="pledge_hash" jdbcType="VARCHAR" property="pledgeHash" />
+    <result column="amount" jdbcType="DOUBLE" property="amount" />
+    <result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
+    <result column="is_reward" jdbcType="BOOLEAN" property="isReward" />
+    <result column="profit" jdbcType="VARCHAR" property="profit" />
+    <result column="period" jdbcType="VARCHAR" property="period" />
+    <result column="stop_time" jdbcType="TIMESTAMP" property="stopTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="income" jdbcType="DOUBLE" property="income" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_id, user_address, create_time, pledge_hash, amount, currency_type, is_reward, 
+    profit, period, stop_time, `status`, income
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from pledge_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from pledge_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.PledgeRecord" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into pledge_record (user_id, user_address, create_time, 
+      pledge_hash, amount, currency_type, 
+      is_reward, profit, period, 
+      stop_time, `status`, income
+      )
+    values (#{userId,jdbcType=INTEGER}, #{userAddress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{pledgeHash,jdbcType=VARCHAR}, #{amount,jdbcType=DOUBLE}, #{currencyType,jdbcType=VARCHAR}, 
+      #{isReward,jdbcType=BOOLEAN}, #{profit,jdbcType=VARCHAR}, #{period,jdbcType=VARCHAR}, 
+      #{stopTime,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}, #{income,jdbcType=DOUBLE}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.PledgeRecord" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into pledge_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userAddress != null">
+        user_address,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="pledgeHash != null">
+        pledge_hash,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="currencyType != null">
+        currency_type,
+      </if>
+      <if test="isReward != null">
+        is_reward,
+      </if>
+      <if test="profit != null">
+        profit,
+      </if>
+      <if test="period != null">
+        period,
+      </if>
+      <if test="stopTime != null">
+        stop_time,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="income != null">
+        income,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userAddress != null">
+        #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pledgeHash != null">
+        #{pledgeHash,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="currencyType != null">
+        #{currencyType,jdbcType=VARCHAR},
+      </if>
+      <if test="isReward != null">
+        #{isReward,jdbcType=BOOLEAN},
+      </if>
+      <if test="profit != null">
+        #{profit,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null">
+        #{period,jdbcType=VARCHAR},
+      </if>
+      <if test="stopTime != null">
+        #{stopTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="income != null">
+        #{income,jdbcType=DOUBLE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.PledgeRecord">
+    <!--@mbg.generated-->
+    update pledge_record
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userAddress != null">
+        user_address = #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="pledgeHash != null">
+        pledge_hash = #{pledgeHash,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="currencyType != null">
+        currency_type = #{currencyType,jdbcType=VARCHAR},
+      </if>
+      <if test="isReward != null">
+        is_reward = #{isReward,jdbcType=BOOLEAN},
+      </if>
+      <if test="profit != null">
+        profit = #{profit,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null">
+        period = #{period,jdbcType=VARCHAR},
+      </if>
+      <if test="stopTime != null">
+        stop_time = #{stopTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="income != null">
+        income = #{income,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.PledgeRecord">
+    <!--@mbg.generated-->
+    update pledge_record
+    set user_id = #{userId,jdbcType=INTEGER},
+      user_address = #{userAddress,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      pledge_hash = #{pledgeHash,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=DOUBLE},
+      currency_type = #{currencyType,jdbcType=VARCHAR},
+      is_reward = #{isReward,jdbcType=BOOLEAN},
+      profit = #{profit,jdbcType=VARCHAR},
+      period = #{period,jdbcType=VARCHAR},
+      stop_time = #{stopTime,jdbcType=TIMESTAMP},
+      `status` = #{status,jdbcType=VARCHAR},
+      income = #{income,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="PledgeRecordByUserAddress" resultType="cn.pledge.envconsole.book.entity.PledgeRecord">
+  select * from pledge_record
+  where user_id= #{userId}
+  <if test="pledgeHash != null">
+     and  pledge_hash = #{pledgeHash}
+  </if>
+  order by id desc
+  limit #{page},#{size}
+</select>
+</mapper>

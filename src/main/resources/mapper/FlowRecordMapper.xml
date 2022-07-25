@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.FlowRecordMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.FlowRecord">
+    <!--@mbg.generated-->
+    <!--@Table flow_record-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_address" jdbcType="VARCHAR" property="userAddress" />
+    <result column="amount" jdbcType="DOUBLE" property="amount" />
+    <result column="time" jdbcType="INTEGER" property="time" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="period" jdbcType="VARCHAR" property="period" />
+    <result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_id, user_address, amount, `time`, create_time, update_time, period, currency_type
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from flow_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from flow_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.FlowRecord" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into flow_record (user_id, user_address, amount, 
+      `time`, create_time, update_time, 
+      period, currency_type)
+    values (#{userId,jdbcType=INTEGER}, #{userAddress,jdbcType=VARCHAR}, #{amount,jdbcType=DOUBLE}, 
+      #{time,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{period,jdbcType=VARCHAR}, #{currencyType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.FlowRecord" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into flow_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userAddress != null">
+        user_address,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="time != null">
+        `time`,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="period != null">
+        period,
+      </if>
+      <if test="currencyType != null">
+        currency_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userAddress != null">
+        #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="period != null">
+        #{period,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyType != null">
+        #{currencyType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.FlowRecord">
+    <!--@mbg.generated-->
+    update flow_record
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userAddress != null">
+        user_address = #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="time != null">
+        `time` = #{time,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="period != null">
+        period = #{period,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyType != null">
+        currency_type = #{currencyType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.FlowRecord">
+    <!--@mbg.generated-->
+    update flow_record
+    set user_id = #{userId,jdbcType=INTEGER},
+      user_address = #{userAddress,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=DOUBLE},
+      `time` = #{time,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      period = #{period,jdbcType=VARCHAR},
+      currency_type = #{currencyType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

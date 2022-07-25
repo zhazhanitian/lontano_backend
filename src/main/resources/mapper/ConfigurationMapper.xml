@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.ConfigurationMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.Configuration">
+    <!--@mbg.generated-->
+    <!--@Table configuration-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="minimum_quantity" jdbcType="DOUBLE" property="minimumQuantity" />
+    <result column="external_link_name" jdbcType="VARCHAR" property="externalLinkName" />
+    <result column="external_link" jdbcType="VARCHAR" property="externalLink" />
+    <result column="system_message" jdbcType="VARCHAR" property="systemMessage" />
+    <result column="is_notice" jdbcType="BOOLEAN" property="isNotice" />
+    <result column="flow_mining_list" jdbcType="VARCHAR" property="flowMiningList" />
+    <result column="period_list" jdbcType="VARCHAR" property="periodList" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, minimum_quantity, external_link_name, external_link, system_message, is_notice, 
+    flow_mining_list, period_list
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from configuration
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from configuration
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Configuration" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into configuration (minimum_quantity, external_link_name, 
+      external_link, system_message, is_notice, 
+      flow_mining_list, period_list)
+    values (#{minimumQuantity,jdbcType=DOUBLE}, #{externalLinkName,jdbcType=VARCHAR}, 
+      #{externalLink,jdbcType=VARCHAR}, #{systemMessage,jdbcType=VARCHAR}, #{isNotice,jdbcType=BOOLEAN}, 
+      #{flowMiningList,jdbcType=VARCHAR}, #{periodList,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Configuration" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into configuration
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="minimumQuantity != null">
+        minimum_quantity,
+      </if>
+      <if test="externalLinkName != null">
+        external_link_name,
+      </if>
+      <if test="externalLink != null">
+        external_link,
+      </if>
+      <if test="systemMessage != null">
+        system_message,
+      </if>
+      <if test="isNotice != null">
+        is_notice,
+      </if>
+      <if test="flowMiningList != null">
+        flow_mining_list,
+      </if>
+      <if test="periodList != null">
+        period_list,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="minimumQuantity != null">
+        #{minimumQuantity,jdbcType=DOUBLE},
+      </if>
+      <if test="externalLinkName != null">
+        #{externalLinkName,jdbcType=VARCHAR},
+      </if>
+      <if test="externalLink != null">
+        #{externalLink,jdbcType=VARCHAR},
+      </if>
+      <if test="systemMessage != null">
+        #{systemMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isNotice != null">
+        #{isNotice,jdbcType=BOOLEAN},
+      </if>
+      <if test="flowMiningList != null">
+        #{flowMiningList,jdbcType=VARCHAR},
+      </if>
+      <if test="periodList != null">
+        #{periodList,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.Configuration">
+    <!--@mbg.generated-->
+    update configuration
+    <set>
+      <if test="minimumQuantity != null">
+        minimum_quantity = #{minimumQuantity,jdbcType=DOUBLE},
+      </if>
+      <if test="externalLinkName != null">
+        external_link_name = #{externalLinkName,jdbcType=VARCHAR},
+      </if>
+      <if test="externalLink != null">
+        external_link = #{externalLink,jdbcType=VARCHAR},
+      </if>
+      <if test="systemMessage != null">
+        system_message = #{systemMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isNotice != null">
+        is_notice = #{isNotice,jdbcType=BOOLEAN},
+      </if>
+      <if test="flowMiningList != null">
+        flow_mining_list = #{flowMiningList,jdbcType=VARCHAR},
+      </if>
+      <if test="periodList != null">
+        period_list = #{periodList,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.Configuration">
+    <!--@mbg.generated-->
+    update configuration
+    set minimum_quantity = #{minimumQuantity,jdbcType=DOUBLE},
+      external_link_name = #{externalLinkName,jdbcType=VARCHAR},
+      external_link = #{externalLink,jdbcType=VARCHAR},
+      system_message = #{systemMessage,jdbcType=VARCHAR},
+      is_notice = #{isNotice,jdbcType=BOOLEAN},
+      flow_mining_list = #{flowMiningList,jdbcType=VARCHAR},
+      period_list = #{periodList,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

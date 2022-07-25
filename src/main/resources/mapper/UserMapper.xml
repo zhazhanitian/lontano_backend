@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.User">
+    <!--@mbg.generated-->
+    <!--@Table `user`-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_address" jdbcType="VARCHAR" property="userAddress" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="superior_user_address" jdbcType="VARCHAR" property="superiorUserAddress" />
+    <result column="is_flow_reward" jdbcType="BOOLEAN" property="isFlowReward" />
+    <result column="is_withdrawal_auth" jdbcType="BOOLEAN" property="isWithdrawalAuth" />
+    <result column="superior_id" jdbcType="INTEGER" property="superiorId" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="root_id" jdbcType="INTEGER" property="rootId" />
+    <result column="root_address" jdbcType="VARCHAR" property="rootAddress" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_address, create_time, superior_user_address, is_flow_reward, is_withdrawal_auth, 
+    superior_id, remark, root_id, root_address
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from `user`
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from `user`
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.User" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into `user` (user_address, create_time, superior_user_address, 
+      is_flow_reward, is_withdrawal_auth, superior_id, 
+      remark, root_id, root_address
+      )
+    values (#{userAddress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{superiorUserAddress,jdbcType=VARCHAR}, 
+      #{isFlowReward,jdbcType=BOOLEAN}, #{isWithdrawalAuth,jdbcType=BOOLEAN}, #{superiorId,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR}, #{rootId,jdbcType=INTEGER}, #{rootAddress,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.User" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into `user`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userAddress != null">
+        user_address,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="superiorUserAddress != null">
+        superior_user_address,
+      </if>
+      <if test="isFlowReward != null">
+        is_flow_reward,
+      </if>
+      <if test="isWithdrawalAuth != null">
+        is_withdrawal_auth,
+      </if>
+      <if test="superiorId != null">
+        superior_id,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="rootId != null">
+        root_id,
+      </if>
+      <if test="rootAddress != null">
+        root_address,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userAddress != null">
+        #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="superiorUserAddress != null">
+        #{superiorUserAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isFlowReward != null">
+        #{isFlowReward,jdbcType=BOOLEAN},
+      </if>
+      <if test="isWithdrawalAuth != null">
+        #{isWithdrawalAuth,jdbcType=BOOLEAN},
+      </if>
+      <if test="superiorId != null">
+        #{superiorId,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="rootId != null">
+        #{rootId,jdbcType=INTEGER},
+      </if>
+      <if test="rootAddress != null">
+        #{rootAddress,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.User">
+    <!--@mbg.generated-->
+    update `user`
+    <set>
+      <if test="userAddress != null">
+        user_address = #{userAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="superiorUserAddress != null">
+        superior_user_address = #{superiorUserAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isFlowReward != null">
+        is_flow_reward = #{isFlowReward,jdbcType=BOOLEAN},
+      </if>
+      <if test="isWithdrawalAuth != null">
+        is_withdrawal_auth = #{isWithdrawalAuth,jdbcType=BOOLEAN},
+      </if>
+      <if test="superiorId != null">
+        superior_id = #{superiorId,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="rootId != null">
+        root_id = #{rootId,jdbcType=INTEGER},
+      </if>
+      <if test="rootAddress != null">
+        root_address = #{rootAddress,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.User">
+    <!--@mbg.generated-->
+    update `user`
+    set user_address = #{userAddress,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      superior_user_address = #{superiorUserAddress,jdbcType=VARCHAR},
+      is_flow_reward = #{isFlowReward,jdbcType=BOOLEAN},
+      is_withdrawal_auth = #{isWithdrawalAuth,jdbcType=BOOLEAN},
+      superior_id = #{superiorId,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      root_id = #{rootId,jdbcType=INTEGER},
+      root_address = #{rootAddress,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="subordinateList" resultType="cn.pledge.envconsole.book.entity.User">
+  select
+  *
+  from user
+  where superior_id = #{userId}
+  order by id desc
+  limit #{page},#{size}
+</select>
+<select id="userList" resultType="java.lang.Integer">
+  select
+  id
+  from user
+  where 1=1
+  <if test="userId != null">
+     and  superior_id = #{userId}
+  </if>
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+   <if test="userAddress != null">
+     and  user_address like CONCAT('%', #{userAddress}, '%')
+  </if>
+  order by id desc
+  limit #{page},#{size}
+</select>
+<select id="userListTotal" resultType="java.lang.Integer">
+  select
+  count(1)
+  from user
+  where 1=1
+  <if test="userId != null">
+     and  superior_id = #{userId}
+  </if>
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+   <if test="userAddress != null">
+     and  user_address like CONCAT('%', #{userAddress}, '%')
+  </if>
+
+</select>
+<select id="selectAllByRootId" resultType="java.lang.Integer">
+  select id from user where root_id =#{rootId}
+
+</select>
+</mapper>

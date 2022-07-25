@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.ConfigExperienceFeeMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.ConfigExperienceFee">
+    <!--@mbg.generated-->
+    <!--@Table config_experience_fee-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="current_address" jdbcType="VARCHAR" property="currentAddress" />
+    <result column="current_id" jdbcType="INTEGER" property="currentId" />
+    <result column="parent_address" jdbcType="VARCHAR" property="parentAddress" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="is_configure_experience_fee" jdbcType="BOOLEAN" property="isConfigureExperienceFee" />
+    <result column="subordinate_id" jdbcType="INTEGER" property="subordinateId" />
+    <result column="subordinate_address" jdbcType="VARCHAR" property="subordinateAddress" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, current_address, current_id, parent_address, parent_id, create_time, is_configure_experience_fee, 
+    subordinate_id, subordinate_address
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from config_experience_fee
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from config_experience_fee
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.ConfigExperienceFee" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into config_experience_fee (current_address, current_id, parent_address, 
+      parent_id, create_time, is_configure_experience_fee, 
+      subordinate_id, subordinate_address)
+    values (#{currentAddress,jdbcType=VARCHAR}, #{currentId,jdbcType=INTEGER}, #{parentAddress,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{isConfigureExperienceFee,jdbcType=BOOLEAN}, 
+      #{subordinateId,jdbcType=INTEGER}, #{subordinateAddress,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.ConfigExperienceFee" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into config_experience_fee
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="currentAddress != null">
+        current_address,
+      </if>
+      <if test="currentId != null">
+        current_id,
+      </if>
+      <if test="parentAddress != null">
+        parent_address,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="isConfigureExperienceFee != null">
+        is_configure_experience_fee,
+      </if>
+      <if test="subordinateId != null">
+        subordinate_id,
+      </if>
+      <if test="subordinateAddress != null">
+        subordinate_address,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="currentAddress != null">
+        #{currentAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="currentId != null">
+        #{currentId,jdbcType=INTEGER},
+      </if>
+      <if test="parentAddress != null">
+        #{parentAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isConfigureExperienceFee != null">
+        #{isConfigureExperienceFee,jdbcType=BOOLEAN},
+      </if>
+      <if test="subordinateId != null">
+        #{subordinateId,jdbcType=INTEGER},
+      </if>
+      <if test="subordinateAddress != null">
+        #{subordinateAddress,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.ConfigExperienceFee">
+    <!--@mbg.generated-->
+    update config_experience_fee
+    <set>
+      <if test="currentAddress != null">
+        current_address = #{currentAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="currentId != null">
+        current_id = #{currentId,jdbcType=INTEGER},
+      </if>
+      <if test="parentAddress != null">
+        parent_address = #{parentAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isConfigureExperienceFee != null">
+        is_configure_experience_fee = #{isConfigureExperienceFee,jdbcType=BOOLEAN},
+      </if>
+      <if test="subordinateId != null">
+        subordinate_id = #{subordinateId,jdbcType=INTEGER},
+      </if>
+      <if test="subordinateAddress != null">
+        subordinate_address = #{subordinateAddress,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.ConfigExperienceFee">
+    <!--@mbg.generated-->
+    update config_experience_fee
+    set current_address = #{currentAddress,jdbcType=VARCHAR},
+      current_id = #{currentId,jdbcType=INTEGER},
+      parent_address = #{parentAddress,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      is_configure_experience_fee = #{isConfigureExperienceFee,jdbcType=BOOLEAN},
+      subordinate_id = #{subordinateId,jdbcType=INTEGER},
+      subordinate_address = #{subordinateAddress,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByCurrentId" resultType="cn.pledge.envconsole.book.entity.ConfigExperienceFee">
+  select * from config_experience_fee
+  left join  user
+  on current_id = user.id
+  where current_id = #{currentId}
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+  <if test="isConfigureExperienceFee != null">
+     and  is_configure_experience_fee = #{isConfigureExperienceFee}
+  </if>
+</select>
+<select id="selectAll" resultType="cn.pledge.envconsole.book.entity.ConfigExperienceFee">
+  select * from config_experience_fee
+  left join  user
+  on current_id = user.id
+  where 1=1
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+  <if test="isConfigureExperienceFee != null">
+     and  is_configure_experience_fee = #{isConfigureExperienceFee}
+  </if>
+  order by is_configure_experience_fee asc ,config_experience_fee.id desc
+  limit #{page},#{size}
+</select>
+<select id="selectAllTotal" resultType="java.lang.Integer">
+  select count(1) from config_experience_fee
+  left join  user
+  on current_id = user.id
+  where 1=1
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+  <if test="isConfigureExperienceFee != null">
+     and  is_configure_experience_fee = #{isConfigureExperienceFee}
+  </if>
+
+</select>
+</mapper>
