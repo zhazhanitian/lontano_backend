@@ -14,11 +14,14 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="root_id" jdbcType="INTEGER" property="rootId" />
     <result column="root_address" jdbcType="VARCHAR" property="rootAddress" />
+    <result column="has_flow" jdbcType="BOOLEAN" property="hasFlow" />
+    <result column="system_message" jdbcType="VARCHAR" property="systemMessage" />
+    <result column="is_notice" jdbcType="BOOLEAN" property="isNotice" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     id, user_address, create_time, superior_user_address, is_flow_reward, is_withdrawal_auth, 
-    superior_id, remark, root_id, root_address
+    superior_id, remark, root_id, root_address, has_flow, system_message, is_notice
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -36,11 +39,13 @@
     <!--@mbg.generated-->
     insert into `user` (user_address, create_time, superior_user_address, 
       is_flow_reward, is_withdrawal_auth, superior_id, 
-      remark, root_id, root_address
+      remark, root_id, root_address, 
+      has_flow, system_message, is_notice
       )
     values (#{userAddress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{superiorUserAddress,jdbcType=VARCHAR}, 
       #{isFlowReward,jdbcType=BOOLEAN}, #{isWithdrawalAuth,jdbcType=BOOLEAN}, #{superiorId,jdbcType=INTEGER}, 
-      #{remark,jdbcType=VARCHAR}, #{rootId,jdbcType=INTEGER}, #{rootAddress,jdbcType=VARCHAR}
+      #{remark,jdbcType=VARCHAR}, #{rootId,jdbcType=INTEGER}, #{rootAddress,jdbcType=VARCHAR}, 
+      #{hasFlow,jdbcType=BOOLEAN}, #{systemMessage,jdbcType=VARCHAR}, #{isNotice,jdbcType=BOOLEAN}
       )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.User" useGeneratedKeys="true">
@@ -74,6 +79,15 @@
       <if test="rootAddress != null">
         root_address,
       </if>
+      <if test="hasFlow != null">
+        has_flow,
+      </if>
+      <if test="systemMessage != null">
+        system_message,
+      </if>
+      <if test="isNotice != null">
+        is_notice,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userAddress != null">
@@ -102,6 +116,15 @@
       </if>
       <if test="rootAddress != null">
         #{rootAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hasFlow != null">
+        #{hasFlow,jdbcType=BOOLEAN},
+      </if>
+      <if test="systemMessage != null">
+        #{systemMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isNotice != null">
+        #{isNotice,jdbcType=BOOLEAN},
       </if>
     </trim>
   </insert>
@@ -136,6 +159,15 @@
       <if test="rootAddress != null">
         root_address = #{rootAddress,jdbcType=VARCHAR},
       </if>
+      <if test="hasFlow != null">
+        has_flow = #{hasFlow,jdbcType=BOOLEAN},
+      </if>
+      <if test="systemMessage != null">
+        system_message = #{systemMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isNotice != null">
+        is_notice = #{isNotice,jdbcType=BOOLEAN},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -150,7 +182,10 @@
       superior_id = #{superiorId,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR},
       root_id = #{rootId,jdbcType=INTEGER},
-      root_address = #{rootAddress,jdbcType=VARCHAR}
+      root_address = #{rootAddress,jdbcType=VARCHAR},
+      has_flow = #{hasFlow,jdbcType=BOOLEAN},
+      system_message = #{systemMessage,jdbcType=VARCHAR},
+      is_notice = #{isNotice,jdbcType=BOOLEAN}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="subordinateList" resultType="cn.pledge.envconsole.book.entity.User">

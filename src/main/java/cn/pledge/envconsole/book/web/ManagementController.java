@@ -146,6 +146,17 @@ public class ManagementController {
         managementService.isAuth(userId,isAuth);
         return BaseResponse.success();
     }
-
+    @ApiOperation(value = "修改基本信息")
+    @PostMapping("/updateBaseInfo")
+    public BaseResponse updateBaseInfo(@RequestBody UpdateUserDetailBaseInfoParam param) {
+        managementService.updateBaseInfo(param);
+        return BaseResponse.success();
+    }
+    @ApiOperation(value = "修改个人系统通知")
+    @PostMapping("/updateSystemMessage")
+    public BaseResponse updateSystemMessage(@RequestBody UpdateSystemMessageParam param) {
+        managementService.updateSystemMessage(param);
+        return BaseResponse.success();
+    }
 
 }

@@ -29,4 +29,10 @@ public class UserVO {
     private Integer SubordinateNum;
     @ApiModelProperty("在生效的体验金总数")
     private Double experienceGoldTotal;
+    @ApiModelProperty("创建时间")
+    private Long createTime;
+    @ApiModelProperty("是否参与流动性")
+    private Boolean hasFlow;
+
+
 }

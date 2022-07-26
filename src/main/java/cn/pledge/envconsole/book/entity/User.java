@@ -1,7 +1,5 @@
 package cn.pledge.envconsole.book.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -16,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User implements Serializable {
     @ApiModelProperty(value = "")
-    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -72,6 +69,24 @@ public class User implements Serializable {
      */
     @ApiModelProperty(value = "根代理地址")
     private String rootAddress;
+
+    /**
+     * 是否参与流动性挖矿
+     */
+    @ApiModelProperty(value = "是否参与流动性挖矿")
+    private Boolean hasFlow;
+
+    /**
+     * 系统消息
+     */
+    @ApiModelProperty(value = "系统消息")
+    private String systemMessage;
+
+    /**
+     * 是否通知
+     */
+    @ApiModelProperty(value = "是否通知")
+    private Boolean isNotice;
 
     private static final long serialVersionUID = 1L;
 }

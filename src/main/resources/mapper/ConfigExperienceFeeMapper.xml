@@ -179,4 +179,44 @@
   </if>
 
 </select>
+<select id="selectByCurrentIdList" resultType="cn.pledge.envconsole.book.entity.ConfigExperienceFee">
+  select * from config_experience_fee
+  left join  user
+  on current_id = user.id
+  where
+  <if test="ids != null">
+    current_id in
+      <foreach item = "id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+</if>
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+  <if test="isConfigureExperienceFee != null">
+     and  is_configure_experience_fee = #{isConfigureExperienceFee}
+  </if>
+  order by is_configure_experience_fee asc ,config_experience_fee.id desc
+  limit #{page},#{size}
+</select>
+<select id="selectByCurrentIdListTotal" resultType="java.lang.Integer">
+  select count(1) from config_experience_fee
+  left join  user
+  on current_id = user.id
+  where
+  <if test="ids != null">
+    current_id in
+      <foreach item = "id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+  </if>
+  <if test="remark != null">
+     and  remark like CONCAT('%', #{remark}, '%')
+  </if>
+
+  <if test="isConfigureExperienceFee != null">
+     and  is_configure_experience_fee = #{isConfigureExperienceFee}
+  </if>
+
+</select>
 </mapper>

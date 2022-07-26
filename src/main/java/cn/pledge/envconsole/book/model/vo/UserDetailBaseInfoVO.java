@@ -38,5 +38,12 @@ public class UserDetailBaseInfoVO {
     private Boolean isFlowReward;
     @ApiModelProperty("提现需授权开关[true -- 需要授权；false -- 不需要]")
     private Boolean isWithdrawalAuth;
+    @ApiModelProperty("是否通知")
+    private Boolean isNotice;
+    @ApiModelProperty("系统消息")
+    private Boolean systemMessage;
+    @ApiModelProperty("是否参与流动性")
+    private Boolean hasFlow;
+
 
 }

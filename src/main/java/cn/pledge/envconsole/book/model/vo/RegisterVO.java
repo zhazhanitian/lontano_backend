@@ -32,5 +32,7 @@ public class RegisterVO {
     private Boolean isNotice;
     @ApiModelProperty("授权")
     private Boolean isWithdrawalAuth;
+    @ApiModelProperty("是否参与流动性挖矿")
+    private Boolean hasFlow;
 
 }

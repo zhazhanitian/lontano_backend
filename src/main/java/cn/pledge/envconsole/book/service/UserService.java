@@ -64,7 +64,7 @@ public class UserService {
                 if (superiorUser!=null && admin == null){
                     registerUser.setSuperiorId(superiorUser.getId());
                     registerUser.setSuperiorUserAddress(superiorUser.getUserAddress());
-                    if (superiorUser.getRootAddress().equals(0)){
+                    if (superiorUser.getRootId().equals(0)){
                         registerUser.setRootAddress(superiorUser.getUserAddress());
                         registerUser.setRootId(superiorUser.getId());
                     }else {
@@ -95,6 +95,7 @@ public class UserService {
             registerVO.setUnreceivedFlowReward(BigDecimal.ZERO.doubleValue());
             registerVO.setUnreceivedPledgeReward(BigDecimal.ZERO.doubleValue());
             registerVO.setUnwithdrawPledge(BigDecimal.ZERO.doubleValue());
+            registerVO.setHasFlow(false);
             Statistics statistics = new Statistics();
             statistics.setUserId(registerUser.getId());
             statistics.setUserAddress(param.getRegisterUserAddress());
@@ -110,6 +111,7 @@ public class UserService {
         }else {
             //老用户
             registerVO.setUserId(user.getId());
+            registerVO.setHasFlow(user.getHasFlow());
             registerVO.setIsWithdrawalAuth(user.getIsWithdrawalAuth());
             Statistics statistics = statisticsMapper.selectOneByUserId(user.getId());
             registerVO.setUserAddress(user.getUserAddress());

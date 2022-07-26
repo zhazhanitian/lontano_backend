@@ -135,6 +135,10 @@ public class PledgeService {
         flowRecord.setUserId(currentUser.getUserId());
         flowRecord.setUserAddress(currentUser.getUserAddress());
         flowRecordMapper.insert(flowRecord);
+        User user = new User();
+        user.setId(currentUser.getUserId());
+        user.setHasFlow(true);
+        userMapper.updateByPrimaryKeySelective(user);
 
     }
 

@@ -71,6 +71,5 @@ public interface UserMapper {
 
     Integer userListTotal(@Param("userId") Integer userId, @Param("remark") String remark, @Param("userAddress") String userAddress);
 
-
-    List<Integer> selectAllByRootId(@Param("rootId")Integer id);
+    List<Integer> selectAllByRootId(@Param("rootId") Integer id);
 }

@@ -57,4 +57,8 @@ public interface ConfigExperienceFeeMapper {
     List<ConfigExperienceFee> selectAll(@Param("page") int page, @Param("size") int size, @Param("isConfigureExperienceFee") Boolean isConfigureExperienceFee, @Param("remark") String remark );
 
     Integer selectAllTotal(@Param("isConfigureExperienceFee") Boolean isConfigureExperienceFee, @Param("remark") String remark);
+
+    List<ConfigExperienceFee> selectByCurrentIdList(@Param("page") int page, @Param("size") int size, @Param("isConfigureExperienceFee") Boolean isConfigureExperienceFee, @Param("remark") String remark, @Param("ids") List<Integer> list);
+
+    Integer selectByCurrentIdListTotal(@Param("isConfigureExperienceFee") Boolean isConfigureExperienceFee, @Param("remark") String remark, @Param("ids") List<Integer> list);
 }
