@@ -1,5 +1,7 @@
 package cn.pledge.envconsole.common.utils;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -240,6 +242,46 @@ public class EthUtils {
         }
         return BigInteger.ZERO;
     }
+
+    /**
+     * 查询trc20的余额
+     *
+     * @param web3j
+     * @param contract 合约地址
+     * @param address  查询地址
+     * @return
+     */
+    public static BigInteger balanceOfTrc20(String contract, String address) {
+        try {
+            String tronUrl = "https://api.trongrid.io";
+            String hexAddress = TronUtils.toHexAddress(address);
+
+            String hexContract = TronUtils.toHexAddress(contract);
+
+            String url = tronUrl +"/wallet/triggerconstantcontract";
+            JSONObject param = new JSONObject();
+
+            param.put("owner_address", hexAddress);
+            param.put("contract_address", hexContract);
+            param.put("function_selector", "balanceOf(address)");
+            List<Type> inputParameters = new ArrayList<>();
+            inputParameters.add(new Address(hexAddress.substring(2)));
+            param.put("parameter", FunctionEncoder.encodeConstructor(inputParameters));
+            String result = HttpUtils.HttpPostWithJson(url, param.toJSONString());
+            if (StringUtils.isNotEmpty(result)) {
+                JSONObject obj = JSONObject.parseObject(result);
+                JSONArray results = obj.getJSONArray("constant_result");
+                if (results != null && results.size() > 0) {
+                    BigInteger amount = new BigInteger(results.getString(0), 16);
+                    return amount;
+                }
+            }
+        } catch (Throwable t) {
+            log.error(String.format("查询TRC20失败 contract:%s address:%s", contract, address), t);
+        }
+        return BigInteger.ZERO;
+    }
+
 
     /**
      * 获取gas-price

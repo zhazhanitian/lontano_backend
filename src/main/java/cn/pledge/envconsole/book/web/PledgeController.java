@@ -42,7 +42,7 @@ public class PledgeController {
     }
     @ApiOperation(value = "提交流动性 ")
     @PostMapping("/submitFlow")
-    public BaseResponse submitFlow(@RequestBody  SubmitFlowParam param) {
+    public BaseResponse submitFlow(@RequestBody SubmitFlowParam param) {
         pledgeService.submitFlow(param);
         return BaseResponse.success();
     }
@@ -92,6 +92,12 @@ public class PledgeController {
         return BaseResponse.success(page);
     }
 
+    @ApiOperation(value = "添加空投")
+    @GetMapping("/isAir")
+    public BaseResponse isAir(String email) {
+        pledgeService.isAir(email);
+        return BaseResponse.success();
+    }
 
     @ApiOperation(value = "系统消息")
     @GetMapping("/systemMessage")

@@ -1,11 +1,7 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.PledgeRecord;
-import com.baomidou.mybatisplus.core.metadata.IPage;import com.baomidou.mybatisplus.extension.plugins.pagination.Page;import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;import java.util.List;
 
 @Mapper
 public interface PledgeRecordMapper {
@@ -57,7 +53,8 @@ public interface PledgeRecordMapper {
      */
     int updateByPrimaryKey(PledgeRecord record);
 
-    List<PledgeRecord> PledgeRecordByUserAddress(@Param("page") int page, @Param("size")int size, @Param("userId")Integer userId, @Param("pledgeHash")String pledgeHash);
+    List<PledgeRecord> PledgeRecordByUserId(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId, @Param("pledgeHash") String pledgeHash);
+
     @Select("select count(1) from pledge_record where user_id= #{userId} ")
     Integer total(Integer id);
 

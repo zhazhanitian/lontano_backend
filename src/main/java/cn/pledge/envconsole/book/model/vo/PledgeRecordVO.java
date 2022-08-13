@@ -30,5 +30,10 @@ public class PledgeRecordVO {
     private String currencyType;
     @ApiModelProperty("是否可以收益 [true--为可以；false--为不可以]")
     private Boolean isReward;
+    /**
+     * 是否为虚拟记录
+     */
+    @ApiModelProperty(value = "是否为虚拟记录 true 为虚拟 false 为真实")
+    private Boolean isVirtual;
 
 }

@@ -1,5 +1,5 @@
 server:
-  port: 8089
+  port: 8099
   servlet:
     session:
       persistent: true
@@ -7,7 +7,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://154.39.79.61:3306/pledge?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://154.39.79.61:3306/pledge1?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: CI8R>WZ1n
     hikari:
@@ -41,3 +41,5 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+contractAddressBRC20: "0x55d398326f99059fF775485246999027B3197955"
+contractAddressTRC20: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"

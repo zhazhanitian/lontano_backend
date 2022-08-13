@@ -16,5 +16,5 @@ public class SubmitFlowParam implements Serializable {
     @ApiModelProperty("用户地址")
     private String userAddress;
     @ApiModelProperty("币种类型")
-    private CurrencyType currencyType;
+    private String currencyType;
 }

@@ -15,10 +15,13 @@ import java.io.Serializable;
 @ToString
 public class RegisterParam  implements Serializable{
 
-    @ApiModelProperty("注册用户地址")
+    @ApiModelProperty(value = "注册用户地址" ,required = true)
     @NotBlank
     private String registerUserAddress;
 
     @ApiModelProperty("上级用户地址")
     private String superiorUserAddress;
+
+    @ApiModelProperty(value = "当前币种类型",required = true)
+    private String currencyType;
 }

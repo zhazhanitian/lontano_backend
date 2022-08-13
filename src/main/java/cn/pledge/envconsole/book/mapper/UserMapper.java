@@ -53,23 +53,20 @@ public interface UserMapper {
      */
     int updateByPrimaryKey(User record);
 
-    /**
-     * 通过注册接口查询是否已经有该用户
-     *
-     * @param registerUserAddress
-     * @return User
-     */
+
     @Select("select * from user where user_address = #{registerUserAddress} ")
-    User selectUserByUserAddress(String registerUserAddress);
+    List<User> selectUserByUserAddress(String registerUserAddress);
 
     @Select("select count(1) from user where superior_id = #{superiorId}")
     Integer subordinateNum(Integer superiorId);
 
     List<User> subordinateList(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId);
 
-    List<Integer> userList(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    List<Integer> userList(@Param("page") int page, @Param("size") int size, @Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
 
-    Integer userListTotal(@Param("userId") Integer userId, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    Integer userListTotal(@Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
 
-    List<Integer> selectAllByRootId(@Param("rootId") Integer id);
+    List<Integer> selectAllByRootId(@Param("rootIds") List<Integer> userIds);
+    @Select("select * from user where user_address = #{registerUserAddress} and currency_type = #{currencyType}")
+    User selectUserByUserAddressAndCurrencyType(String registerUserAddress, String currencyType);
 }

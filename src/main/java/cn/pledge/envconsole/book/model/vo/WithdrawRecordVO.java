@@ -27,4 +27,11 @@ public class WithdrawRecordVO {
     private Long playTime;
     @ApiModelProperty("备注")
     private String remark;
+    @ApiModelProperty("币类型")
+    private String currencyType;
+    /**
+     * 虚拟金额
+     */
+    @ApiModelProperty(value = "虚拟金额")
+    private Double virtualAmount;
 }

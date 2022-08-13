@@ -16,16 +16,10 @@ public class RegisterVO {
     private Integer userId;
     @ApiModelProperty("用户地址")
     private String userAddress;
-    @ApiModelProperty("总流动性收益")
-    private Double totalFlowReward;
-    @ApiModelProperty("流动性收益未领取的")
-    private Double unreceivedFlowReward;
-    @ApiModelProperty("未提现的本金")
-    private Double unwithdrawPledge;
-    @ApiModelProperty("未领取的质押收益")
-    private Double unreceivedPledgeReward;
-    @ApiModelProperty("未领取的体验金收益")
-    private Double unreceivedExperienceReward;
+    @ApiModelProperty("当前币种")
+    private String currencyType;
+
+
     @ApiModelProperty("系统消息")
     private String systemMessage;
     @ApiModelProperty("系统消息是否开启")
@@ -34,5 +28,7 @@ public class RegisterVO {
     private Boolean isWithdrawalAuth;
     @ApiModelProperty("是否参与流动性挖矿")
     private Boolean hasFlow;
+    @ApiModelProperty("是否有领取过空投")
+    private Boolean hasEmail;
 
 }

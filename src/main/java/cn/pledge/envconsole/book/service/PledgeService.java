@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,10 @@ public class PledgeService {
 
     @Value("${contractAddress}")
     private String contractAddress;
+    @Value("${contractAddressBRC20}")
+    private String contractAddressBRC20;
+    @Value("${contractAddressTRC20}")
+    private String contractAddressTRC20;
 
     public ApplyPledgeVO applyPledge() {
         ApplyPledgeVO applyPledgeVO = new ApplyPledgeVO();
@@ -82,10 +87,11 @@ public class PledgeService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime stopTime = now.plusDays(Long.parseLong(param.getPeriod()));
         pledgeRecord.setCreateTime(now);
-        pledgeRecord.setCurrencyType(param.getCurrencyType().toString());
+        pledgeRecord.setCurrencyType(param.getCurrencyType());
         pledgeRecord.setUserId(currentUser.getUserId());
         pledgeRecord.setUserAddress(currentUser.getUserAddress());
         pledgeRecord.setIsReward(true);
+        pledgeRecord.setIsVirtual(false);
         pledgeRecord.setStopTime(stopTime);
         pledgeRecord.setStatus(PledgeType.PLEDGING.toString());
         pledgeRecord.setIncome(new Double(0));
@@ -95,19 +101,31 @@ public class PledgeService {
 
         BigDecimal.valueOf(unwithdrawPledge).add(BigDecimal.valueOf(param.getAmount()));
         statistics.setUnwithdrawPledge(BigDecimal.valueOf(unwithdrawPledge).add(BigDecimal.valueOf(param.getAmount())).doubleValue());
+        statistics.setTotalPledge(BigDecimal.valueOf(statistics.getTotalPledge()).add(BigDecimal.valueOf(param.getAmount())).doubleValue());
         statisticsMapper.updateByPrimaryKeySelective(statistics);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void submitFlow(SubmitFlowParam param) {
+
         UserSession currentUser = UserUtils.getCurrentUser();
         Configuration configuration = configurationMapper.selectByPrimaryKey(1);
 
-        Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
-        BigInteger bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, currentUser.getUserAddress());
-        if (BigInteger.ZERO.compareTo(bigInteger)==0){
-            throw new BizException(Code.BALANCE_IS_ZERO);
+        BigInteger bigInteger = BigInteger.ZERO;
+        if(currentUser.getCurrencyType().equals("erc20")){
+            Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
+
+            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, currentUser.getUserAddress());
         }
+        if (currentUser.getCurrencyType().equals("trc20")){
+            bigInteger = EthUtils.balanceOfTrc20(contractAddressTRC20, currentUser.getUserAddress());
+        }
+        if(currentUser.getCurrencyType().equals("brc20")){
+            Web3j web3j = Web3j.build(new HttpService("https://bsc-dataseed1.defibit.io/"));
+
+            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddressBRC20, currentUser.getUserAddress()).divide(new BigInteger("1000000000000"));
+        }
+
         List<PledgeGlobalConfigurationVO.FlowMining> flowMinings = JSON.parseArray(configuration.getFlowMiningList(), PledgeGlobalConfigurationVO.FlowMining.class);
 
         BigDecimal period = BigDecimal.ZERO;
@@ -119,21 +137,23 @@ public class PledgeService {
             break;
         }
     }
-        if (BigDecimal.ZERO.compareTo(period)==0){
-            throw new BizException(Code.INTEREST_RATES_NOT_EXIST);
-        }
+
 
         FlowRecord flowRecord = new FlowRecord();
 
         BigDecimal amount = BigDecimal.valueOf(bigInteger.doubleValue()).divide(BigDecimal.valueOf(1000000));
-
+        FlowRecord flowRecordHas = flowRecordMapper.selectFlowRecordByUserId(currentUser.getUserId());
+        if (flowRecordHas!=null){
+            return;
+        }
         flowRecord.setAmount(amount.doubleValue());
         flowRecord.setCreateTime(LocalDateTime.now());
-        flowRecord.setCurrencyType(param.getCurrencyType().toString());
+
         flowRecord.setPeriod(period.toString());
         flowRecord.setTime(0);
         flowRecord.setUserId(currentUser.getUserId());
         flowRecord.setUserAddress(currentUser.getUserAddress());
+        flowRecord.setCurrencyType(currentUser.getCurrencyType());
         flowRecordMapper.insert(flowRecord);
         User user = new User();
         user.setId(currentUser.getUserId());
@@ -143,11 +163,12 @@ public class PledgeService {
     }
 
     public PageResult<PledgeRecordVO> pledgeRecordList(PledgeRecordParam param) {
-        User user = userMapper.selectUserByUserAddress(param.getUserAddress());
+
+        User user = userMapper.selectByPrimaryKey(param.getUserId());
         if (user==null){
             throw new BizException(Code.USER_NOT_EXIST);
         }
-        List<PledgeRecord> pledgeRecordPage = pledgeRecordMapper.PledgeRecordByUserAddress((param.getPage()-1)*param.getSize(), param.getSize(),user.getId(),param.getPledgeHash());
+        List<PledgeRecord> pledgeRecordPage = pledgeRecordMapper.PledgeRecordByUserId((param.getPage()-1)*param.getSize(), param.getSize(),user.getId(),param.getPledgeHash());
         Integer total = pledgeRecordMapper.total(user.getId());
         LocalDateTime now = LocalDateTime.now();
         List<PledgeRecordVO> collect = pledgeRecordPage.stream().map(o -> {
@@ -196,12 +217,12 @@ public class PledgeService {
     }
 
     public PageResult<ExperienceGoldRecordVO> experienceGoldRecordList(ExperienceGoldRecordParam param) {
-        User user = userMapper.selectUserByUserAddress(param.getUserAddress());
+        User user = userMapper.selectByPrimaryKey(param.getUserId());
         if (user==null){
             throw new BizException(Code.USER_NOT_EXIST);
         }
-        List<ExperienceGoldRecord> list = experienceGoldRecordMapper.experienceGoldRecord((param.getPage()-1)*param.getSize(), param.getSize(),user.getId(),param.getRemark());
-        Integer total = experienceGoldRecordMapper.total(user.getId(),param.getRemark());
+        List<ExperienceGoldRecord> list = experienceGoldRecordMapper.experienceGoldRecord((param.getPage()-1)*param.getSize(), param.getSize(),user.getId(),null);
+        Integer total = experienceGoldRecordMapper.total(user.getId(),null);
         List<ExperienceGoldRecordVO> collect = list.stream().map(o -> {
             ExperienceGoldRecordVO experienceGoldRecordVO = new ExperienceGoldRecordVO();
             BeanUtils.copyProperties(o, experienceGoldRecordVO);
@@ -228,6 +249,7 @@ public class PledgeService {
             SubordinateVO subordinateVO = new SubordinateVO();
             subordinateVO.setCreateTime(o.getCreateTime().toInstant(ZoneOffset.ofHours(9)).toEpochMilli());
             subordinateVO.setUserAddress(o.getUserAddress());
+            subordinateVO.setCurrencyType(o.getCurrencyType());
             return subordinateVO;
         }).collect(Collectors.toList());
         PageResult<SubordinateVO> subordinateVOPageResult = new PageResult<>();
@@ -247,8 +269,8 @@ public class PledgeService {
         UserSession currentUser = UserUtils.getCurrentUser();
         Integer userId = currentUser.getUserId();
         String userAddress = currentUser.getUserAddress();
-        if (StringUtils.isNotEmpty(param.getUserAddress())){
-            User user = userMapper.selectUserByUserAddress(param.getUserAddress());
+        if (ObjectUtils.isNotEmpty(param.getUserId())){
+            User user = userMapper.selectByPrimaryKey(param.getUserId());
             if (user==null){
                 throw new BizException(Code.USER_NOT_EXIST);
             }
@@ -259,12 +281,14 @@ public class PledgeService {
         Double unreceivedExperienceReward = statistics.getUnreceivedExperienceReward();
         Double unreceivedFlowReward = statistics.getUnreceivedFlowReward();
         Double unreceivedPledgeReward = statistics.getUnreceivedPledgeReward();
-
-    if (GainInterestType.experience.equals(param.getType())) {
-        if (unreceivedExperienceReward<=0){
+        Double virtualUnreceivedExperienceReward = statistics.getVirtualUnreceivedExperienceReward();
+        Double virtualUnreceivedFlowReward = statistics.getVirtualUnreceivedFlowReward();
+        Double virtualUnreceivedPledgeReward = statistics.getVirtualUnreceivedPledgeReward();
+        if (GainInterestType.experience.equals(param.getType())) {
+        if (unreceivedExperienceReward+virtualUnreceivedExperienceReward<=0){
             throw new BizException(Code.NOT_REWARD);
         }
-      if (unreceivedExperienceReward > 0) {
+      if (unreceivedExperienceReward+virtualUnreceivedExperienceReward > 0) {
         WithdrawRecord withdrawRecordFlow = new WithdrawRecord();
         withdrawRecordFlow.setApplyTime(LocalDateTime.now());
         withdrawRecordFlow.setAmount(unreceivedExperienceReward);
@@ -272,40 +296,49 @@ public class PledgeService {
         withdrawRecordFlow.setWithdrewType(GainInterestType.experience.toString());
         withdrawRecordFlow.setUserId(userId);
         withdrawRecordFlow.setUserAddress(userAddress);
-        statistics.setUnreceivedExperienceReward(new Double(0));
+        withdrawRecordFlow.setCurrencyType(statistics.getCurrencyType());
+          withdrawRecordFlow.setVirtualAmount(virtualUnreceivedExperienceReward);
+          statistics.setUnreceivedExperienceReward(new Double(0));
+          statistics.setVirtualUnreceivedExperienceReward(new Double(0));
         withdrawRecordMapper.insertSelective(withdrawRecordFlow);
 
       }
         }
     if (GainInterestType.flow.equals(param.getType())) {
-        if (unreceivedFlowReward<=0){
+        if (unreceivedFlowReward+virtualUnreceivedFlowReward<=0){
             throw new BizException(Code.NOT_REWARD);
         }
-      if (unreceivedFlowReward > 0) {
+      if (unreceivedFlowReward + virtualUnreceivedFlowReward> 0) {
         WithdrawRecord withdrawRecordFlow = new WithdrawRecord();
         withdrawRecordFlow.setApplyTime(LocalDateTime.now());
         withdrawRecordFlow.setAmount(unreceivedFlowReward);
         withdrawRecordFlow.setStatus(PledgeType.WITHDRAWING.toString());
         withdrawRecordFlow.setWithdrewType(GainInterestType.flow.toString());
         withdrawRecordFlow.setUserId(userId);
+          withdrawRecordFlow.setCurrencyType(statistics.getCurrencyType());
         withdrawRecordFlow.setUserAddress(userAddress);
+        withdrawRecordFlow.setVirtualAmount(virtualUnreceivedFlowReward);
+        statistics.setVirtualUnreceivedFlowReward(new Double(0));
         statistics.setUnreceivedFlowReward(new Double(0));
         withdrawRecordMapper.insertSelective(withdrawRecordFlow);
 
       }
         }
     if (GainInterestType.pledge.equals(param.getType())) {
-        if (unreceivedPledgeReward<=0){
+        if (unreceivedPledgeReward+virtualUnreceivedPledgeReward<=0){
             throw new BizException(Code.NOT_REWARD);
         }
-      if (unreceivedPledgeReward > 0) {
+      if (unreceivedPledgeReward + virtualUnreceivedPledgeReward> 0) {
         WithdrawRecord withdrawRecordFlow = new WithdrawRecord();
         withdrawRecordFlow.setApplyTime(LocalDateTime.now());
         withdrawRecordFlow.setAmount(unreceivedPledgeReward);
         withdrawRecordFlow.setStatus(PledgeType.WITHDRAWING.toString());
         withdrawRecordFlow.setWithdrewType(GainInterestType.pledge.toString());
         withdrawRecordFlow.setUserId(userId);
+        withdrawRecordFlow.setCurrencyType(statistics.getCurrencyType());
         withdrawRecordFlow.setUserAddress(userAddress);
+        withdrawRecordFlow.setVirtualAmount(virtualUnreceivedPledgeReward);
+        statistics.setVirtualUnreceivedPledgeReward(new Double(0));
         statistics.setUnreceivedPledgeReward(new Double(0));
         withdrawRecordMapper.insertSelective(withdrawRecordFlow);
 
@@ -317,9 +350,13 @@ public class PledgeService {
     public void withdrawalPrincipal(WithdrawalPrincipalParam param) {
         PledgeRecord pledgeRecord = pledgeRecordMapper.selectByPrimaryKey(param.getId());
 
+        if(pledgeRecord.getIsVirtual()){
+            throw new BizException(Code.VIRTUAL_PLEDGE_CANNOT_BE_WITHDRAWN);
+        }
         if (pledgeRecord.getStopTime().compareTo(LocalDateTime.now())>=0) {
             throw new BizException(Code.PLEDGE_PERIOD_IS_NOT_OVER);
         }
+
         if (PledgeType.APPLY.toString().equals(pledgeRecord.getStatus())
                 || PledgeType.PLEDGING.toString().equals(pledgeRecord.getStatus())) {
             PledgeRecord record = new PledgeRecord();
@@ -327,7 +364,7 @@ public class PledgeService {
             record.setStatus(PledgeType.WITHDRAWING.toString());
             pledgeRecordMapper.updateByPrimaryKeySelective(record);
 
-            User user = userMapper.selectUserByUserAddress(param.getUserAddress());
+            User user = userMapper.selectByPrimaryKey(pledgeRecord.getUserId());
             if (user==null){
                 throw new BizException(Code.USER_NOT_EXIST);
             }
@@ -345,12 +382,12 @@ public class PledgeService {
         }
     }
     public PageResult<WithdrawRecordVO> withdrawRecordList(WithdrawRecordParam param) {
-        User user = userMapper.selectUserByUserAddress(param.getUserAddress());
+        User user = userMapper.selectByPrimaryKey(param.getUserId());
         if (user==null){
             throw new BizException(Code.USER_NOT_EXIST);
         }
-       List<WithdrawRecord> withdrawRecordList = withdrawRecordMapper.selectWithdrawRecordList((param.getPage()-1)*param.getSize(), param.getSize(),user.getId(),param.getRemark(),param.getPlayHash());
-       Integer total = withdrawRecordMapper.withdrawRecordTotal(user.getId(),param.getRemark(),param.getPlayHash());
+       List<WithdrawRecord> withdrawRecordList = withdrawRecordMapper.selectWithdrawRecordList((param.getPage()-1)*param.getSize(), param.getSize(),user.getId(),null,param.getPlayHash());
+       Integer total = withdrawRecordMapper.withdrawRecordTotal(user.getId(),null,param.getPlayHash());
         List<WithdrawRecordVO> collect = withdrawRecordList.stream().map(o -> {
             WithdrawRecordVO withdrawRecordVO = new WithdrawRecordVO();
             BeanUtils.copyProperties(o, withdrawRecordVO);
@@ -367,4 +404,21 @@ public class PledgeService {
     }
 
 
+    public void isAir( String email) {
+        UserSession currentUser = UserUtils.getCurrentUser();
+        User user = userMapper.selectByPrimaryKey(currentUser.getUserId());
+        if (user==null){
+            throw new BizException(Code.USER_NOT_EXIST);
+        }
+        Configuration configuration = configurationMapper.selectByPrimaryKey(1);
+        if (!configuration.getIsAirdrop()) {
+            throw new BizException(Code.NOT_IS_AIR);
+        }
+        if (user.getHasEmail()) {
+            return;
+        }
+        user.setHasEmail(true);
+        user.setEmail(email);
+        userMapper.updateByPrimaryKeySelective(user);
+    }
 }

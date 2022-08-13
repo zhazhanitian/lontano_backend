@@ -75,6 +75,13 @@ public class ManagementController {
         return BaseResponse.success(pageResult);
 
     }
+    @ApiOperation(value = "代理下级-用户列表根具用户id")
+    @GetMapping("/SubordinateUserListByUserId")
+    public BaseResponse<PageResult<SubordinateUserVO>> subordinateUserListByUserId(SubordinateUserListByUserIdParam param) {
+        PageResult<SubordinateUserVO> pageResult = managementService.subordinateUserListByUserId(param);
+        return BaseResponse.success(pageResult);
+
+    }
     @ApiOperation(value = "用户备注修改")
     @PostMapping("/remark")
     public BaseResponse remark(@RequestBody RemarkParam param) {
@@ -107,17 +114,11 @@ public class ManagementController {
         managementService.closeExperienceFee(id,isExperienceFee);
         return BaseResponse.success();
     }
-//    @ApiOperation(value = "变更提现状态为已经打款")
-//    @PostMapping("/withdrawal/complete")
-//    public BaseResponse withdrawalComplete(@RequestBody WithdrawalCompleteParam param) {
-//        managementService.withdrawalComplete(param);
-//        return BaseResponse.success();
-//    }
 
 
     @ApiOperation(value = "体验金管理后台列表")
     @GetMapping("/experienceGoldRecordList")
-    public BaseResponse<PageResult<ExperienceGoldRecordVO>> experienceGoldRecordList(@ModelAttribute ExperienceGoldRecordParam param) {
+    public BaseResponse<PageResult<ExperienceGoldRecordVO>> experienceGoldRecordList(@ModelAttribute ExperienceGoldRecordManageParam param) {
         PageResult<ExperienceGoldRecordVO> page = managementService.experienceGoldRecordList(param);
         return BaseResponse.success(page);
     }
@@ -146,7 +147,7 @@ public class ManagementController {
         managementService.isAuth(userId,isAuth);
         return BaseResponse.success();
     }
-    @ApiOperation(value = "修改基本信息")
+    @ApiOperation(value = "修改基本信息的虚拟金")
     @PostMapping("/updateBaseInfo")
     public BaseResponse updateBaseInfo(@RequestBody UpdateUserDetailBaseInfoParam param) {
         managementService.updateBaseInfo(param);
@@ -158,5 +159,10 @@ public class ManagementController {
         managementService.updateSystemMessage(param);
         return BaseResponse.success();
     }
-
+    @ApiOperation(value = "添加虚拟质押")
+    @PostMapping("/submitPledge")
+    public BaseResponse submitPledge(@RequestBody SubmitPledgeParam param) {
+        managementService.submitPledge(param);
+        return BaseResponse.success();
+    }
 }

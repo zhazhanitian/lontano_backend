@@ -1,6 +1,5 @@
 package cn.pledge.envconsole.book.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -74,8 +73,17 @@ public class WithdrawRecord implements Serializable {
     @ApiModelProperty(value = "质押记录id")
     private Integer pledgeRecordId;
 
-    @TableField(exist = false)
-    private String remark;
+    /**
+     * 虚拟金额
+     */
+    @ApiModelProperty(value = "虚拟金额")
+    private Double virtualAmount;
+
+    /**
+     * 币种类型
+     */
+    @ApiModelProperty(value = "币种类型")
+    private String currencyType;
 
     private static final long serialVersionUID = 1L;
 }

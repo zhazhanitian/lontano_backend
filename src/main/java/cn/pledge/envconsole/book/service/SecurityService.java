@@ -50,7 +50,6 @@ public class SecurityService implements InitializingBean {
     public void loginPre() {
         String ip = getIp();
         ipLimit.put(ip,LocalDateTime.now());
-
     }
     private String getIp(){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -105,16 +104,17 @@ public class SecurityService implements InitializingBean {
         }
     }
 
-    public Boolean loginAfter() {
+    public Boolean loginAfter(HttpSession session) {
         String ip = getIp();
         if (ipLimit.containsKey(ip)){
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime localDateTime = ipLimit.get(ip);
-            if (now.minusHours(1).compareTo(localDateTime)<0) {
-                ipLimit.put(ip,now);
+            if (now.minusHours(5).compareTo(localDateTime)<0) {
                 return true;
-            }else if (now.minusHours(1).compareTo(localDateTime)>=0){
+            }else if (now.minusHours(5).compareTo(localDateTime)>=0){
                 ipLimit.remove(ip);
+                session.invalidate();
+                SecurityContextHolder.clearContext();
             }
         }
         return false;
@@ -126,7 +126,7 @@ public class SecurityService implements InitializingBean {
         if (ipLimit.containsKey(ip)){
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime localDateTime = ipLimit.get(ip);
-            if (now.minusHours(1).compareTo(localDateTime)<0) {
+            if (now.minusHours(5).compareTo(localDateTime)<0) {
                 Admin admin = adminMapper.selectByUsername(param.getUsername());
                 if (admin != null && admin.getPassword().equals(param.getPassword())) {
                     loginVO.setId(admin.getId());
@@ -136,7 +136,7 @@ public class SecurityService implements InitializingBean {
                     session.setAttribute(SessionAttribute.USER_NAME, admin.getUsername());
                     session.setAttribute(SessionAttribute.USER_ROLE, admin.getRole());
                     session.setAttribute(SessionAttribute.USER_ADDRESS, admin.getUserAddress());
-                    session.setMaxInactiveInterval(24 * 60 * 60);
+                    session.setMaxInactiveInterval(6 * 60 * 60);
                     return loginVO;
                 }
             }

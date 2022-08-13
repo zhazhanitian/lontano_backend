@@ -66,6 +66,8 @@ public class ConfigExperienceFee implements Serializable {
     private String subordinateAddress;
     @TableField(exist = false)
     private String remark;
-
+    @ApiModelProperty("币类型")
+    @TableField(exist = false)
+    private String currencyType;
     private static final long serialVersionUID = 1L;
 }

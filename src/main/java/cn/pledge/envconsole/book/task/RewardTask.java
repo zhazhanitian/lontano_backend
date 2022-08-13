@@ -39,8 +39,11 @@ public class RewardTask {
     @Autowired
     private UserMapper userMapper;
     @Value("${contractAddress}")
-
     private String contractAddress;
+    @Value("${contractAddressBRC20}")
+    private String contractAddressBRC20;
+    @Value("${contractAddressTRC20}")
+    private String contractAddressTRC20;
     @Scheduled(cron = "0 0 3 * * ?")
     @Async
     public void experienceGold() {
@@ -77,9 +80,20 @@ public class RewardTask {
        List<FlowRecord> flowRecordList = flowRecordMapper.selectAll();
     for (FlowRecord flowRecord : flowRecordList) {
 
-        Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
-        BigInteger bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
+        BigInteger bigInteger = BigInteger.ZERO;
+        if(flowRecord.getCurrencyType().equals("erc20")){
+            Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
 
+            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
+        }
+        if (flowRecord.getCurrencyType().equals("trc20")){
+            bigInteger = EthUtils.balanceOfTrc20(contractAddressTRC20, flowRecord.getUserAddress());
+        }
+        if(flowRecord.getCurrencyType().equals("brc20")){
+            Web3j web3j = Web3j.build(new HttpService("https://bsc-dataseed1.defibit.io/"));
+
+            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddressBRC20, flowRecord.getUserAddress()).divide(new BigInteger("1000000000000"));
+        }
         BigDecimal amount = BigDecimal.valueOf(bigInteger.doubleValue()).divide(BigDecimal.valueOf(1000000));
 
         //比对结果相同
@@ -113,6 +127,7 @@ public class RewardTask {
     }
 
     @Scheduled(cron = "0 30 3 * * ?")
+//    @Scheduled(cron = "0 0/3 * * * ?")
     @Async
     public void pledgeReward() {
         log.info("质押收益定时任务"+ LocalDateTime.now());
@@ -130,10 +145,21 @@ public class RewardTask {
                 pledgeRecord.setIncome(BigDecimal.valueOf(income).add(reward).doubleValue());
                 Statistics statistics = statisticsMapper.selectOneByUserId(pledgeRecord.getUserId());
                 if (statistics!=null) {
-                    Double unreceivedPledgeReward = statistics.getUnreceivedPledgeReward();
-                    Double totalPledgeReward = statistics.getTotalPledgeReward();
-                    statistics.setTotalPledgeReward(BigDecimal.valueOf(totalPledgeReward).add(reward).doubleValue());
-                    statistics.setUnreceivedPledgeReward(BigDecimal.valueOf(unreceivedPledgeReward).add(reward).doubleValue());
+                    if (pledgeRecord.getIsVirtual()){
+                        Double virtualUnreceivedPledgeReward = statistics.getVirtualUnreceivedPledgeReward();
+                        Double virtualTotalPledgeReward = statistics.getVirtualTotalPledgeReward();
+                        statistics.setVirtualTotalPledgeReward(
+                                BigDecimal.valueOf(virtualTotalPledgeReward).add(reward).doubleValue());
+                        statistics.setVirtualUnreceivedPledgeReward(
+                                BigDecimal.valueOf(virtualUnreceivedPledgeReward).add(reward).doubleValue());
+                    } else {
+                        Double unreceivedPledgeReward = statistics.getUnreceivedPledgeReward();
+                        Double totalPledgeReward = statistics.getTotalPledgeReward();
+                        statistics.setTotalPledgeReward(
+                                BigDecimal.valueOf(totalPledgeReward).add(reward).doubleValue());
+                        statistics.setUnreceivedPledgeReward(
+                                BigDecimal.valueOf(unreceivedPledgeReward).add(reward).doubleValue());
+                    }
                     statisticsMapper.updateByPrimaryKeySelective(statistics);
                 }
             }

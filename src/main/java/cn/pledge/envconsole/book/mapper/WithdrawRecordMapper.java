@@ -57,6 +57,7 @@ public interface WithdrawRecordMapper {
 
     Integer withdrawRecordTotal(@Param("userId") Integer userId, @Param("remark") String remark, @Param("playHash") String playHash);
 
-    List<WithdrawRecord> manageSelectWithdrawRecordList(@Param("page") int page, @Param("size") int size, @Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash,@Param("userAddress")String userAddress);
-    Integer manageWithdrawRecordTotal(@Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash,@Param("userAddress")String userAddress);
+    List<WithdrawRecord> manageSelectWithdrawRecordList(@Param("page") int page, @Param("size") int size, @Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash, @Param("userAddress") String userAddress);
+
+    Integer manageWithdrawRecordTotal(@Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash, @Param("userAddress") String userAddress);
 }

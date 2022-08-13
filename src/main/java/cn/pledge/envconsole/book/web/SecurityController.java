@@ -44,8 +44,8 @@ public class SecurityController {
     }
     @ApiOperation(value = "登入后检测ip是否还存在 true --存在；false -- 不存在")
     @GetMapping("/loginAfter")
-    public BaseResponse<Boolean> loginAfter() {
-        Boolean bool = securityService.loginAfter();
+    public BaseResponse<Boolean> loginAfter(@ApiIgnore HttpSession session) {
+        Boolean bool = securityService.loginAfter(session);
         return BaseResponse.success(bool);
     }
     @ApiOperation(value = "登入")

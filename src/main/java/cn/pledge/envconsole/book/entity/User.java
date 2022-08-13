@@ -88,5 +88,23 @@ public class User implements Serializable {
     @ApiModelProperty(value = "是否通知")
     private Boolean isNotice;
 
+    /**
+     * 空投email
+     */
+    @ApiModelProperty(value = "空投email")
+    private String email;
+
+    /**
+     * 是否已经有领取空投
+     */
+    @ApiModelProperty(value = "是否已经有领取空投")
+    private Boolean hasEmail;
+
+    /**
+     * 币种类型
+     */
+    @ApiModelProperty(value = "币种类型")
+    private String currencyType;
+
     private static final long serialVersionUID = 1L;
 }
