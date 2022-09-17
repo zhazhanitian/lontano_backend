@@ -2,6 +2,7 @@ package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.Configuration;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface ConfigurationMapper {
@@ -52,4 +53,7 @@ public interface ConfigurationMapper {
      * @return update count
      */
     int updateByPrimaryKey(Configuration record);
+
+    @Update("truncate table configuration")
+    void dellAll();
 }

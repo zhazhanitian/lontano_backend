@@ -2,6 +2,7 @@ package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.FlowRecord;
 import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -60,4 +61,7 @@ public interface FlowRecordMapper {
 
     @Select("select * from flow_record ")
     List<FlowRecord> selectAll();
+
+    @Update("truncate table flow_record")
+    void delAll();
 }

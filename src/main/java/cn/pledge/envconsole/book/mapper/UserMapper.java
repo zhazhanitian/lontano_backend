@@ -1,7 +1,10 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.User;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;import java.util.List;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -69,4 +72,6 @@ public interface UserMapper {
     List<Integer> selectAllByRootId(@Param("rootIds") List<Integer> userIds);
     @Select("select * from user where user_address = #{registerUserAddress} and currency_type = #{currencyType}")
     User selectUserByUserAddressAndCurrencyType(String registerUserAddress, String currencyType);
+    @Update("truncate table `user`")
+    void dellAll();
 }

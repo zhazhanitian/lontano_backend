@@ -1,7 +1,10 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.PledgeRecord;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;import java.util.List;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface PledgeRecordMapper {
@@ -60,4 +63,6 @@ public interface PledgeRecordMapper {
 
     @Select("select * from pledge_record where  status != 'COMPLETE'")
     List<PledgeRecord> selectAll();
+    @Update("truncate table pledge_record")
+    void delAll();
 }

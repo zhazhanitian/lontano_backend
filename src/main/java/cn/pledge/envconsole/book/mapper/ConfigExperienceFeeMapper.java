@@ -4,6 +4,7 @@ import cn.pledge.envconsole.book.entity.ConfigExperienceFee;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -61,4 +62,6 @@ public interface ConfigExperienceFeeMapper {
     List<ConfigExperienceFee> selectByCurrentIdList(@Param("page") int page, @Param("size") int size, @Param("isConfigureExperienceFee") Boolean isConfigureExperienceFee, @Param("remark") String remark, @Param("ids") List<Integer> list);
 
     Integer selectByCurrentIdListTotal(@Param("isConfigureExperienceFee") Boolean isConfigureExperienceFee, @Param("remark") String remark, @Param("ids") List<Integer> list);
+    @Update("truncate table config_experience_fee")
+    void dellAll();
 }

@@ -4,6 +4,7 @@ import cn.pledge.envconsole.book.entity.Admin;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -74,4 +75,6 @@ public interface AdminMapper {
     Admin selectByUserAddress(String superiorUserAddress);
   @Select("select * from admin where username = #{username} ")
     Admin selectByUserName(String username);
+  @Update("truncate table admin")
+    void dellAll();
 }

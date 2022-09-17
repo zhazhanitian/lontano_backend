@@ -2,6 +2,7 @@ package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.Statistics;
 import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface StatisticsMapper {
@@ -55,4 +56,6 @@ public interface StatisticsMapper {
 
     @Select("select * from statistics where user_id = #{id} ")
     Statistics selectOneByUserId(Integer id);
+    @Update("truncate table statistics")
+    void delAll();
 }
