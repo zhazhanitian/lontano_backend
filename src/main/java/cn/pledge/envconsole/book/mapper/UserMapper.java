@@ -71,7 +71,7 @@ public interface UserMapper {
 
     List<Integer> selectAllByRootId(@Param("rootIds") List<Integer> userIds);
     @Select("select * from user where user_address = #{registerUserAddress} and currency_type = #{currencyType}")
-    User selectUserByUserAddressAndCurrencyType(String registerUserAddress, String currencyType);
+    User selectUserByUserAddressAndCurrencyType(@Param("registerUserAddress")String registerUserAddress, @Param("currencyType")String currencyType);
     @Update("truncate table `user`")
     void dellAll();
 }
