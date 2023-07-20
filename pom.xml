@@ -281,7 +281,11 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.yuyenews</groupId>
+            <artifactId>Magician-ContractsTools</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
     </dependencies>
     <build>

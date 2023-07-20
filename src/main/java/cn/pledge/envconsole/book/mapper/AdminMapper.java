@@ -75,6 +75,9 @@ public interface AdminMapper {
     Admin selectByUserAddress(String superiorUserAddress);
   @Select("select * from admin where username = #{username} ")
     Admin selectByUserName(String username);
-  @Update("truncate table admin")
-    void dellAll();
+
+
+  @Select("select id from admin where role = 'admin' limit 0 ,1")
+  Integer selectByRoleIsAdminOne();
+
 }

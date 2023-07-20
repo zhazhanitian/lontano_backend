@@ -122,5 +122,10 @@ public class UserDetailBaseInfoVO {
     @ApiModelProperty(value = "虚拟未领取体验金收益")
     private Double virtualUnreceivedExperienceReward;
 
-
+    @ApiModelProperty(value = "根代理在管理端ID")
+    private Integer rootAdminId;
+    @ApiModelProperty(value = "自动划转 0-否；1-是")
+    private Integer automaticTransfer;
+    @ApiModelProperty(value = "自动划转金额")
+    private Double transferNum;
 }

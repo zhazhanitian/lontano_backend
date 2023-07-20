@@ -1,19 +1,22 @@
 package cn.pledge.envconsole.book.mapper;
 
-import cn.pledge.envconsole.book.entity.Statistics;
+import cn.pledge.envconsole.book.entity.Transfer;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
-import java.time.LocalDate;
 import java.util.List;
 
+/**
+@author jerffry
+
+@create 2023-07-13-15:22  
+
+@description 
+*/ 
 @Mapper
-public interface StatisticsMapper {
+public interface TransferMapper {
     /**
      * delete by primary key
-     *
      * @param id primaryKey
      * @return deleteCount
      */
@@ -21,50 +24,42 @@ public interface StatisticsMapper {
 
     /**
      * insert record to table
-     *
      * @param record the record
      * @return insert count
      */
-    int insert(Statistics record);
+    int insert(Transfer record);
 
     /**
      * insert record to table selective
-     *
      * @param record the record
      * @return insert count
      */
-    int insertSelective(Statistics record);
+    int insertSelective(Transfer record);
 
     /**
      * select by primary key
-     *
      * @param id primary key
      * @return object by primary key
      */
-    Statistics selectByPrimaryKey(Integer id);
+    Transfer selectByPrimaryKey(Integer id);
 
     /**
      * update record selective
-     *
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKeySelective(Statistics record);
+    int updateByPrimaryKeySelective(Transfer record);
 
     /**
      * update record
-     *
      * @param record the updated record
      * @return update count
      */
-    int updateByPrimaryKey(Statistics record);
+    int updateByPrimaryKey(Transfer record);
 
-    @Select("select * from statistics where user_id = #{id} ")
-    Statistics selectOneByUserId(Integer id);
-    @Update("truncate table statistics")
-    void delAll();
+    Double selectTransferAmount(@Param("userIds") List<Integer> userIds);
 
-    Double selectPledgeAmount(@Param("userIds")List<Integer> userIds);
+    List<Transfer> selectListByUserId(@Param("page") int page, @Param("size") int size, @Param("id") Integer id, @Param("hash") String hash, @Param("isAuto") Integer isAuto);
 
-    Double selectPledgeAmountByUserIdsAndDate(@Param("userIds")List<Integer> userIds);
+    Long selectListTotalByUserId(@Param("id") Integer id, @Param("hash") String hash, @Param("isAuto")Integer isAuto);
 }

@@ -1,16 +1,20 @@
 package cn.pledge.envconsole.book.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(value = "cn-pledge-envconsole-book-entity-FlowRecord")
+/**
+ * @author jerffry
+ * @create 2023-07-12-15:27
+ * @description
+ */
+@ApiModel(value = "flow_record")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +23,6 @@ public class FlowRecord implements Serializable {
      * id
      */
     @ApiModelProperty(value = "id")
-    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -69,6 +72,18 @@ public class FlowRecord implements Serializable {
      */
     @ApiModelProperty(value = "币种类型")
     private String currencyType;
+
+    /**
+     * 划转金额
+     */
+    @ApiModelProperty(value = "划转金额")
+    private Double transferNum;
+
+    /**
+     * 是否开启自动划转 0-否；1-是
+     */
+    @ApiModelProperty(value = "是否开启自动划转 0-否；1-是")
+    private Integer automaticTransfer;
 
     private static final long serialVersionUID = 1L;
 }

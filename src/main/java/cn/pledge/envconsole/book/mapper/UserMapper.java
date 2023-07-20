@@ -4,6 +4,7 @@ import cn.pledge.envconsole.book.entity.User;
 import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -74,4 +75,11 @@ public interface UserMapper {
     User selectUserByUserAddressAndCurrencyType(@Param("registerUserAddress")String registerUserAddress, @Param("currencyType")String currencyType);
     @Update("truncate table `user`")
     void dellAll();
+
+    Integer selectNumByUserIds(@Param("rootIds")List<Integer> userIds);
+
+    Integer selectTodayNumByUserIds(@Param("rootIds")List<Integer> userIds);
+
+    List<User> selectUserByUserIdsAndDate(@Param("userIds")List<Integer> userIds, @Param("localDate")LocalDate localDate, @Param("plusDays")LocalDate plusDays);
+
 }

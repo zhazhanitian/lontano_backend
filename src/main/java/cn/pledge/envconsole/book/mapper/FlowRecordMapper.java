@@ -1,11 +1,13 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.FlowRecord;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;import org.apache.ibatis.annotations.Update;import java.util.List;
 
-import java.util.List;
-
+/**
+ * @author jerffry
+ * @create 2023-07-12-15:27
+ * @description
+ */
 @Mapper
 public interface FlowRecordMapper {
     /**
@@ -64,4 +66,10 @@ public interface FlowRecordMapper {
 
     @Update("truncate table flow_record")
     void delAll();
+
+    Double selectFlowAmount(@Param("userIds") List<Integer> userIds);
+    @Select("select * from flow_record  where automatic_transfer = 1")
+
+    List<FlowRecord> selectflowIsAoutTransfer();
+
 }

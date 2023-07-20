@@ -301,4 +301,24 @@
       currency_type = #{currencyType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectPledgeAmount" resultType="java.lang.Double">
+    select sum(total_pledge) from statistics join user on user.id = statistics.user_id where user.has_flow = 1
+    <if test="userIds != null">
+      and user_id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+        #{id}
+      </foreach>
+    </if>
+  </select>
+
+  <select id="selectPledgeAmountByUserIdsAndDate" resultType="java.lang.Double">
+    select sum(total_pledge) from statistics join user on user.id = statistics.user_id where user.has_flow = 1
+    <if test="userIds != null">
+      and user_id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+        #{id}
+      </foreach>
+    </if>
+  </select>
 </mapper>

@@ -165,4 +165,28 @@ public class ManagementController {
         managementService.submitPledge(param);
         return BaseResponse.success();
     }
+    @ApiOperation(value = "统计")
+    @GetMapping("/statistics")
+    public BaseResponse<statisticsVO> statistics(Integer id) {
+        statisticsVO statisticsVO = managementService.statistics(id);
+        return BaseResponse.success(statisticsVO);
+    }
+    @ApiOperation(value = "修改用户自动划转 automaticTransfer 0 -否；1 是")
+    @GetMapping("/automaticTransfer")
+    public BaseResponse automaticTransfer(Integer userId ,Integer automaticTransfer,Double transferNum) {
+        managementService.automaticTransfer(userId,automaticTransfer,transferNum);
+        return BaseResponse.success();
+    }
+    @ApiOperation(value = "划转记录列表")
+    @PostMapping("/autoTransferList")
+    public BaseResponse<PageResult<TransferRecordVO>> autoTransferList(@RequestBody TransferListParam param) {
+        PageResult<TransferRecordVO> list = managementService.autoTransferList(param);
+        return BaseResponse.success(list);
+    }
+    @ApiOperation(value = "添加划转记录列表 ")
+    @PostMapping("/addTransfer")
+    public BaseResponse addTransfer(@RequestBody addTransferParam param) {
+        managementService.addTransfer(param);
+        return BaseResponse.success();
+    }
 }

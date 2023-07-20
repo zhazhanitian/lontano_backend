@@ -1,5 +1,6 @@
 package cn.pledge.envconsole.book.model.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.ToString;
 
@@ -8,9 +9,8 @@ import lombok.ToString;
  */
 @Data
 @ToString
-public class UserListParam extends PageReq{
+public class ChatListParam extends PageReq{
+    @ApiModelProperty("管理者/代理ID")
     private Integer id;
-    private String userAddress;
-    private String remark;
 
 }

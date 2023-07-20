@@ -273,11 +273,47 @@
 
 </select>
 <select id="selectAllByRootId" resultType="java.lang.Integer">
-  select id from user where root_id in
+  select id from user
+  <if test="rootIds != null">
+  where root_id in
    <foreach close=")" collection="rootIds" item="id" open="(" separator=",">
             #{id}
-        </foreach>
-
+   </foreach>
+  </if>
 
 </select>
+
+  <select id="selectNumByUserIds" resultType="java.lang.Integer">
+    select count(1) from user where has_flow = 1
+    <if test="rootIds != null">
+    and root_id in
+    <foreach close=")" collection="rootIds" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+    </if>
+  </select>
+
+  <select id="selectTodayNumByUserIds" resultType="java.lang.Integer">
+    select count(1) from user where  has_flow = 1 and create_time>=date(now())
+    <if test="rootIds != null">
+      and  root_id in
+      <foreach close=")" collection="rootIds" item="id" open="(" separator=",">
+        #{id}
+      </foreach>
+    </if>
+  </select>
+
+
+
+    <select id="selectUserByUserIdsAndDate" resultMap="BaseResultMap">
+    select * from `user` where has_flow = 1 and create_time>=#{localDate} and create_time &lt;#{plusDays}
+        <if test="userIds != null">
+          and  root_id in
+          <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+            #{id}
+          </foreach>
+        </if>
+  </select>
+
+
 </mapper>
