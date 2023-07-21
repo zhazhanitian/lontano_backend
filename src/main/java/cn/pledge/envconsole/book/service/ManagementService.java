@@ -238,6 +238,12 @@ public class ManagementService {
         String userRole = currentUser.getUserRole();
         if (RoleType.admin.toString().equals(userRole)) {
             adminMapper.deleteByPrimaryKey(id);
+        }else if(RoleType.agency.toString().equals(userRole)){
+            Admin admin = adminMapper.selectByPrimaryKey(id);
+            if (!admin.getParentId().equals(currentUser.getUserId())) {
+                throw new BizException(Code.NOT_ALLOW);
+            }
+            adminMapper.deleteByPrimaryKey(id);
         }else {
             throw new BizException(Code.NOT_ALLOW);
         }
@@ -265,14 +271,16 @@ public class ManagementService {
         //超级管理员添加业务员
         Admin admin1 = adminMapper.selectByPrimaryKey(param.getParentId());
         Admin admin = new Admin();
-        if (RoleType.agency.toString().toString().equals(param.getRole())||(admin1.getRole().equals(RoleType.admin.toString())&&RoleType.employee.toString().toString().equals(param.getRole()))){
+        if (RoleType.agency.toString().toString().equals(param.getRole())||RoleType.employee.toString().toString().equals(param.getRole())){
             if (!CollectionUtils.isEmpty(userList)) {
-                for (User user : userList) {
-                    user.setSuperiorUserAddress("0");
-                    user.setSuperiorId(0);
-                    user.setRootId(0);
-                    user.setRootAddress("0");
-                    userMapper.updateByPrimaryKeySelective(user);
+                if (!(admin1.getRole().equals(RoleType.agency.toString())&&RoleType.employee.toString().toString().equals(param.getRole()))){
+                    for (User user : userList) {
+                        user.setSuperiorUserAddress("0");
+                        user.setSuperiorId(0);
+                        user.setRootId(0);
+                        user.setRootAddress("0");
+                        userMapper.updateByPrimaryKeySelective(user);
+                    }
                 }
 
             } else {
@@ -282,8 +290,18 @@ public class ManagementService {
                 registerUser.setUserAddress(param.getUserAddress());
                 LocalDateTime now = LocalDateTime.now();
                 registerUser.setCreateTime(now);
-                registerUser.setRootAddress("0");
-                registerUser.setRootId(0);
+                if (admin1.getRole().equals(RoleType.agency.toString())&&RoleType.employee.toString().toString().equals(param.getRole())){
+                    User user = userMapper.selectUserByUserAddressAndCurrencyType(admin1.getUserAddress(), "erc20");
+                    registerUser.setRootAddress(user.getUserAddress());
+                    registerUser.setRootId(user.getId());
+                    registerUser.setSuperiorUserAddress(user.getUserAddress());
+                    registerUser.setSuperiorId(user.getId());
+                }else {
+                    registerUser.setRootAddress("0");
+                    registerUser.setRootId(0);
+                }
+
+
                 registerUser.setHasEmail(false);
                 registerUser.setCurrencyType("erc20");
                 userMapper.insertSelective(registerUser);
@@ -318,9 +336,15 @@ public class ManagementService {
 
        //查看业务员
         if (RoleType.employee.toString().equals(param.getRole())){
-            adminList = adminMapper.employeeAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark(),admin.getId());
-           total = adminMapper.employeeAdminTotal(param.getUserAddress(),param.getRemark(),admin.getId());
-        }else {
+            if (RoleType.admin.toString().equals(admin.getRole())) {
+                adminList = adminMapper.employeeAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark(),null);
+                total = adminMapper.employeeAdminTotal(param.getUserAddress(),param.getRemark(),null);
+            }else {
+                adminList = adminMapper.employeeAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark(),admin.getId());
+                total = adminMapper.employeeAdminTotal(param.getUserAddress(),param.getRemark(),admin.getId());
+
+            }
+           }else {
             //查看代理
             adminList = adminMapper.agencyAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark());
             total = adminMapper.agencyAdminTotal(param.getUserAddress(),param.getRemark());
@@ -343,11 +367,17 @@ public class ManagementService {
         String userRole = currentUser.getUserRole();
         List<Integer> userIds = null;
         if (RoleType.agency.toString().equals(userRole)||RoleType.employee.toString().equals(userRole)) {
-            //代理管理/业务员查询用户
             List<User> user = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
             userIds = user.stream().map(o->o.getId()).collect(Collectors.toList());
         }
-        List<Integer> userList = userMapper.userList((param.getPage()-1)*param.getSize(), param.getSize(),userIds,param.getRemark(),param.getUserAddress());
+        if (RoleType.agency.toString().equals(userRole)) {
+//            userIds = userMapper.userList(null, null,userIds,param.getRemark(),param.getUserAddress());
+            List<Integer> integers = userMapper.userList(null, null, userIds, param.getRemark(), param.getUserAddress());
+            userIds.addAll(integers);
+
+        }
+        List<Integer> userList = userMapper.userList((param.getPage() - 1) * param.getSize(), param.getSize(), userIds, param.getRemark(), param.getUserAddress());
+
         Integer total = userMapper.userListTotal(userIds,param.getRemark(),param.getUserAddress());
 
         List<UserVO> collect = userList.stream().map(o -> {
@@ -610,6 +640,8 @@ public class ManagementService {
             //代理管理查询已经授权的用户
             List<User> user = userMapper.selectUserByUserAddress(admin.getUserAddress());
             userIds = user.stream().map(o->o.getId()).collect(Collectors.toList());
+//            List<Integer> integers = userMapper.userList(null, null, userIds, null, null);
+//            userIds.addAll(integers);
 
         }
         Integer total = 0;

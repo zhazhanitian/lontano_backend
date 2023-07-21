@@ -131,10 +131,10 @@
   <select id="agencyAdminList" resultType="cn.pledge.envconsole.book.entity.Admin">
   select * from admin
   where role = 'agency'
-  <if test="remark != null">
+  <if test="remark != null and remark != ''">
      and  remark like CONCAT('%', #{remark}, '%')
   </if>
-  <if test="userAddress != null">
+  <if test="userAddress != null and userAddress !=''">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
   order by id desc
@@ -143,10 +143,10 @@
  <select id="agencyAdminTotal" resultType="java.lang.Integer">
   select count(1) from admin
   where role = 'agency'
-  <if test="remark != null">
+  <if test="remark != null and remark != ''">
      and  remark like CONCAT('%', #{remark}, '%')
   </if>
-  <if test="userAddress != null">
+  <if test="userAddress != null and userAddress !=''">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
 
@@ -154,11 +154,14 @@
 
   <select id="employeeAdminList" resultMap="BaseResultMap">
     select * from admin
-    where role = 'employee' and parent_id = #{parentId}
-    <if test="remark != null">
+    where role = 'employee'
+    <if test="parentId != null">
+      and parent_id = #{parentId}
+    </if>
+    <if test="remark != null and remark != ''">
       and  remark like CONCAT('%', #{remark}, '%')
     </if>
-    <if test="userAddress != null">
+    <if test="userAddress != null and userAddress !=''">
       and  user_address like CONCAT('%', #{userAddress}, '%')
     </if>
     order by id desc
@@ -167,11 +170,14 @@
 
   <select id="employeeAdminTotal" resultType="java.lang.Integer">
     select count(1) from admin
-    where role = 'employee' and parent_id = #{parentId}
-    <if test="remark != null">
+    where role = 'employee'
+    <if test="parentId != null">
+      and parent_id = #{parentId}
+    </if>
+    <if test="remark != null and remark != ''">
       and  remark like CONCAT('%', #{remark}, '%')
     </if>
-    <if test="userAddress != null">
+    <if test="userAddress != null and userAddress !=''">
       and  user_address like CONCAT('%', #{userAddress}, '%')
     </if>
 

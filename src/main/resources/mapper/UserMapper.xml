@@ -237,7 +237,7 @@
   id
   from user
   where 1=1
-  <if test="userIds != null">
+  <if test="userIds != null ">
   and  superior_id in
       <foreach close=")" collection="userIds" item="id" open="(" separator=",">
             #{id}
@@ -251,14 +251,17 @@
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
   order by id desc
-  limit #{page},#{size}
+  <if test="page != null and size != null">
+    limit #{page},#{size}
+  </if>
+
 </select>
 <select id="userListTotal" resultType="java.lang.Integer">
   select
   count(1)
   from user
   where 1=1
-  <if test="userIds != null">
+  <if test="userIds != null ">
   and  superior_id in
       <foreach close=")" collection="userIds" item="id" open="(" separator=",">
             #{id}

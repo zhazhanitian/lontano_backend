@@ -64,9 +64,9 @@ public interface UserMapper {
     @Select("select count(1) from user where superior_id = #{superiorId}")
     Integer subordinateNum(Integer superiorId);
 
-    List<User> subordinateList(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId);
+    List<User> subordinateList(@Param("page") Integer page, @Param("size") Integer size, @Param("userId") Integer userId);
 
-    List<Integer> userList(@Param("page") int page, @Param("size") int size, @Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    List<Integer> userList(@Param("page") Integer page, @Param("size") Integer size, @Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
 
     Integer userListTotal(@Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
 
