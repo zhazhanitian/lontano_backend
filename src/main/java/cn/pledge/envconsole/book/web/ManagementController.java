@@ -37,13 +37,14 @@ public class ManagementController {
         PledgeGlobalConfigurationVO pledgeGlobalConfigurationVO = managementService.getGlobalConfiguration();
         return BaseResponse.success(pledgeGlobalConfigurationVO);
     }
-    @ApiOperation(value = "管理员查看代理管理员列表")
+    @ApiOperation(value = "管理员/代理 查看代理管理员列表/业务员列表")
     @PostMapping("/agencyAdminList")
     public BaseResponse<PageResult<AgencyAdminVO>> agencyAdminList(@RequestBody AgencyAdminListParam param) {
         PageResult<AgencyAdminVO> pageResult = managementService.agencyAdminList(param);
         return BaseResponse.success(pageResult);
     }
-    @ApiOperation(value = "管理员添加代理管理员")
+
+    @ApiOperation(value = "管理员/代理'添加代理管理员/业务员")
     @PostMapping("/addAgencyAdmin")
     public BaseResponse addAgencyAdmin(@RequestBody AddAgencyAdminParam param) {
         managementService.addAgencyAdmin(param);
@@ -68,6 +69,7 @@ public class ManagementController {
         PageResult<UserVO> pageResult = managementService.userList(param);
         return BaseResponse.success(pageResult);
   }
+
     @ApiOperation(value = "代理下级-用户列表")
     @GetMapping("/SubordinateUserList")
     public BaseResponse<PageResult<SubordinateUserVO>> subordinateUserList(SubordinateUserListParam param) {

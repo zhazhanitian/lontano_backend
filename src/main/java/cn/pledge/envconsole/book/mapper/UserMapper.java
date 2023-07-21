@@ -82,4 +82,5 @@ public interface UserMapper {
 
     List<User> selectUserByUserIdsAndDate(@Param("userIds")List<Integer> userIds, @Param("localDate")LocalDate localDate, @Param("plusDays")LocalDate plusDays);
 
+
 }

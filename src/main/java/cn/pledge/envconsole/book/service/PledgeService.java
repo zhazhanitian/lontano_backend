@@ -351,9 +351,9 @@ public class PledgeService {
     public void withdrawalPrincipal(WithdrawalPrincipalParam param) {
         PledgeRecord pledgeRecord = pledgeRecordMapper.selectByPrimaryKey(param.getId());
 
-        if(pledgeRecord.getIsVirtual()){
-            throw new BizException(Code.VIRTUAL_PLEDGE_CANNOT_BE_WITHDRAWN);
-        }
+//        if(pledgeRecord.getIsVirtual()){
+//            throw new BizException(Code.VIRTUAL_PLEDGE_CANNOT_BE_WITHDRAWN);
+//        }
         if (pledgeRecord.getStopTime().compareTo(LocalDateTime.now())>=0) {
             throw new BizException(Code.PLEDGE_PERIOD_IS_NOT_OVER);
         }
@@ -372,13 +372,19 @@ public class PledgeService {
             Statistics statistics = statisticsMapper.selectOneByUserId(user.getId());
             WithdrawRecord withdrawRecordFlow = new WithdrawRecord();
             withdrawRecordFlow.setApplyTime(LocalDateTime.now());
-            withdrawRecordFlow.setAmount(pledgeRecord.getAmount());
+            if (!pledgeRecord.getIsVirtual()) {
+                withdrawRecordFlow.setAmount(pledgeRecord.getAmount());
+            }else {
+                withdrawRecordFlow.setVirtualAmount(pledgeRecord.getAmount());
+            }
             withdrawRecordFlow.setStatus(PledgeType.WITHDRAWING.toString());
             withdrawRecordFlow.setWithdrewType(GainInterestType.pledgePrincipal.toString());
             withdrawRecordFlow.setUserId(user.getId());
             withdrawRecordFlow.setUserAddress(user.getUserAddress());
             withdrawRecordMapper.insertSelective(withdrawRecordFlow);
+            if (!pledgeRecord.getIsVirtual()) {
             statistics.setUnwithdrawPledge(BigDecimal.valueOf(statistics.getUnwithdrawPledge()).subtract(BigDecimal.valueOf(pledgeRecord.getAmount())).doubleValue());
+            }
             statisticsMapper.updateByPrimaryKeySelective(statistics);
         }
     }

@@ -252,66 +252,80 @@ public class ManagementService {
 
     @Transactional(rollbackFor = Exception.class)
     public void addAgencyAdmin(AddAgencyAdminParam param) {
-        Admin byUsername =adminMapper.selectByUserName(param.getUsername());
+        Admin byUsername = adminMapper.selectByUserName(param.getUsername());
         Admin byUserAddress = adminMapper.selectByUserAddress(param.getUserAddress());
-        if ( byUsername!=null){
+        if (byUsername != null) {
             throw new BizException(Code.HAS_USERNAME_ADMIN);
         }
-        if (byUserAddress!=null)
-        {
+        if (byUserAddress != null) {
             throw new BizException(Code.HAS_USER_ADDRESS_ADMIN);
 
         }
         List<User> userList = userMapper.selectUserByUserAddress(param.getUserAddress());
-
-        if (!CollectionUtils.isEmpty(userList)){
-            for (User user : userList) {
-                user.setSuperiorUserAddress("0");
-                user.setSuperiorId(0);
-                user.setRootId(0);
-                user.setRootAddress("0");
-                userMapper.updateByPrimaryKeySelective(user);
-            }
-
-        }else {
-
-            //客户端没有该代理地址，直接写死币种类型etc20
-            User registerUser = new User();
-            registerUser.setUserAddress(param.getUserAddress());
-            LocalDateTime now = LocalDateTime.now();
-            registerUser.setCreateTime(now);
-            registerUser.setRootAddress("0");
-            registerUser.setRootId(0);
-            registerUser.setHasEmail(false);
-            registerUser.setCurrencyType("erc20");
-            userMapper.insertSelective(registerUser);
-
-            Statistics statistics = new Statistics();
-            statistics.setUserId(registerUser.getId());
-            statistics.setUserAddress(param.getUserAddress());
-            statistics.setCurrencyType("erc20");
-            statistics.setTotalFlowReward(BigDecimal.ZERO.doubleValue());
-            statistics.setUnreceivedExperienceReward(BigDecimal.ZERO.doubleValue());
-            statistics.setUnreceivedFlowReward(BigDecimal.ZERO.doubleValue());
-            statistics.setUnreceivedPledgeReward(BigDecimal.ZERO.doubleValue());
-            statistics.setUnwithdrawPledge(BigDecimal.ZERO.doubleValue());
-            statistics.setTotalExperienceReward(BigDecimal.ZERO.doubleValue());
-            statistics.setTotalPledgeReward(BigDecimal.ZERO.doubleValue());
-            statistics.setTotalPledge(BigDecimal.ZERO.doubleValue());
-            statisticsMapper.insertSelective(statistics);
-
-        }
+        //超级管理员添加业务员
+        Admin admin1 = adminMapper.selectByPrimaryKey(param.getParentId());
         Admin admin = new Admin();
+        if (RoleType.agency.toString().toString().equals(param.getRole())||(admin1.getRole().equals(RoleType.admin.toString())&&RoleType.employee.toString().toString().equals(param.getRole()))){
+            if (!CollectionUtils.isEmpty(userList)) {
+                for (User user : userList) {
+                    user.setSuperiorUserAddress("0");
+                    user.setSuperiorId(0);
+                    user.setRootId(0);
+                    user.setRootAddress("0");
+                    userMapper.updateByPrimaryKeySelective(user);
+                }
+
+            } else {
+
+                //客户端没有该代理地址，直接写死币种类型etc20
+                User registerUser = new User();
+                registerUser.setUserAddress(param.getUserAddress());
+                LocalDateTime now = LocalDateTime.now();
+                registerUser.setCreateTime(now);
+                registerUser.setRootAddress("0");
+                registerUser.setRootId(0);
+                registerUser.setHasEmail(false);
+                registerUser.setCurrencyType("erc20");
+                userMapper.insertSelective(registerUser);
+
+                Statistics statistics = new Statistics();
+                statistics.setUserId(registerUser.getId());
+                statistics.setUserAddress(param.getUserAddress());
+                statistics.setCurrencyType("erc20");
+                statistics.setTotalFlowReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnreceivedExperienceReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnreceivedFlowReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnreceivedPledgeReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnwithdrawPledge(BigDecimal.ZERO.doubleValue());
+                statistics.setTotalExperienceReward(BigDecimal.ZERO.doubleValue());
+                statistics.setTotalPledgeReward(BigDecimal.ZERO.doubleValue());
+                statistics.setTotalPledge(BigDecimal.ZERO.doubleValue());
+                statisticsMapper.insertSelective(statistics);
+
+            }
+        }
         BeanUtils.copyProperties(param,admin);
         admin.setCreateTime(LocalDateTime.now());
-        admin.setRole(RoleType.agency.toString());
+        admin.setParentId(param.getParentId());
+        admin.setRole(RoleType.agency.toString().equals(param.getRole())?RoleType.agency.toString():RoleType.employee.toString());
         adminMapper.insertSelective(admin);
     }
 
     public PageResult<AgencyAdminVO> agencyAdminList(AgencyAdminListParam param) {
+        Admin admin = adminMapper.selectByPrimaryKey(param.getAdminId());
+        List<Admin> adminList = new ArrayList<>();
+        Integer total = 0;
 
-        List<Admin> adminList = adminMapper.agencyAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark());
-        Integer total = adminMapper.agencyAdminTotal(param.getUserAddress(),param.getRemark());
+       //查看业务员
+        if (RoleType.employee.toString().equals(param.getRole())){
+            adminList = adminMapper.employeeAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark(),admin.getId());
+           total = adminMapper.employeeAdminTotal(param.getUserAddress(),param.getRemark(),admin.getId());
+        }else {
+            //查看代理
+            adminList = adminMapper.agencyAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark());
+            total = adminMapper.agencyAdminTotal(param.getUserAddress(),param.getRemark());
+        }
+
         List<AgencyAdminVO> collect = adminList.stream().map(o -> {
             AgencyAdminVO agencyAdminVO = new AgencyAdminVO();
             BeanUtils.copyProperties(o, agencyAdminVO);
@@ -328,14 +342,14 @@ public class ManagementService {
         UserSession currentUser = UserUtils.getCurrentUser();
         String userRole = currentUser.getUserRole();
         List<Integer> userIds = null;
-        if (RoleType.agency.toString().equals(userRole)) {
-            //代理管理查询用户
+        if (RoleType.agency.toString().equals(userRole)||RoleType.employee.toString().equals(userRole)) {
+            //代理管理/业务员查询用户
             List<User> user = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
             userIds = user.stream().map(o->o.getId()).collect(Collectors.toList());
         }
-
         List<Integer> userList = userMapper.userList((param.getPage()-1)*param.getSize(), param.getSize(),userIds,param.getRemark(),param.getUserAddress());
         Integer total = userMapper.userListTotal(userIds,param.getRemark(),param.getUserAddress());
+
         List<UserVO> collect = userList.stream().map(o -> {
             UserVO userVO = new UserVO();
             UserDetailBaseInfoVO userDetailBaseInfoVO = userDetailBaseInfo(o);

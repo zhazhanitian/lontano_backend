@@ -73,7 +73,7 @@
             <entry key="pledge:admin">
               <value>
                 <TableGenerateConfig>
-                  <option name="generatedKey" value="" />
+                  <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="Admin" />
                   <option name="moduleName" value="env-console" />
                   <option name="sequenceColumn" value="" />

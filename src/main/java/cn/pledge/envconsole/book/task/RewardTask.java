@@ -45,6 +45,7 @@ public class RewardTask {
     @Value("${contractAddressTRC20}")
     private String contractAddressTRC20;
     @Scheduled(cron = "0 0 3 * * ?")
+//    @Scheduled(cron = "0 0/3 * * * ?")
     @Async
     public void experienceGold() {
         log.info("体验金收益定时任务"+ LocalDateTime.now());
@@ -126,7 +127,8 @@ public class RewardTask {
     }
     }
 
-    @Scheduled(cron = "0 30 3 * * ?")
+//    @Scheduled(cron = "0 30 3 * * ?")
+    @Scheduled(cron = "0 0/30 * * * ?")
 //    @Scheduled(cron = "0 0/3 * * * ?")
     @Async
     public void pledgeReward() {

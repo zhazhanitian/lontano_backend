@@ -1,9 +1,13 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.Configuration;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Update;
 
+/**
+ * @author jerffry
+ * @create 2023-07-20-22:11
+ * @description
+ */
 @Mapper
 public interface ConfigurationMapper {
     /**

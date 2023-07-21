@@ -1,16 +1,20 @@
 package cn.pledge.envconsole.book.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(value = "cn-pledge-envconsole-book-entity-Admin")
+/**
+ * @author jerffry
+ * @create 2023-07-20-23:08
+ * @description
+ */
+@ApiModel(value = "`admin`")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +23,6 @@ public class Admin implements Serializable {
      * id
      */
     @ApiModelProperty(value = "id")
-    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -57,6 +60,12 @@ public class Admin implements Serializable {
      */
     @ApiModelProperty(value = "管理员备注")
     private String remark;
+
+    /**
+     * 业务员的父id
+     */
+    @ApiModelProperty(value = "业务员的父id")
+    private Integer parentId;
 
     private static final long serialVersionUID = 1L;
 }

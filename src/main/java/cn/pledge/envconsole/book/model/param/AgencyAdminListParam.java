@@ -13,5 +13,9 @@ public class AgencyAdminListParam extends PageReq {
     @ApiModelProperty("用户地址")
     private String userAddress;
     private String remark;
+    @ApiModelProperty("查看的是代理还是业务员 agency ，employee")
+    private String role;
+    @ApiModelProperty("管理员id")
+    private Integer adminId;
 
 }

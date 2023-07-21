@@ -7,7 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(value = "cn-pledge-envconsole-book-entity-Configuration")
+/**
+ * @author jerffry
+ * @create 2023-07-20-22:11
+ * @description
+ */
+@ApiModel(value = "configuration")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -62,6 +67,24 @@ public class Configuration implements Serializable {
      */
     @ApiModelProperty(value = "空投开关")
     private Boolean isAirdrop;
+
+    /**
+     * 币种类型
+     */
+    @ApiModelProperty(value = "币种类型")
+    private String currencyType;
+
+    /**
+     * 转化倍数
+     */
+    @ApiModelProperty(value = "转化倍数")
+    private Double rate;
+
+    /**
+     * 域名
+     */
+    @ApiModelProperty(value = "域名")
+    private String domain;
 
     private static final long serialVersionUID = 1L;
 }
