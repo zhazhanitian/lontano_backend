@@ -250,6 +250,9 @@
    <if test="userAddress != null">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
+  <if test="hasFlow != null">
+    and  has_flow like CONCAT('%', #{hasFlow}, '%')
+  </if>
   order by id desc
   <if test="page != null and size != null">
     limit #{page},#{size}
@@ -273,7 +276,9 @@
    <if test="userAddress != null">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
-
+  <if test="hasFlow != null">
+    and  has_flow like CONCAT('%', #{hasFlow}, '%')
+  </if>
 </select>
 <select id="selectAllByRootId" resultType="java.lang.Integer">
   select id from user

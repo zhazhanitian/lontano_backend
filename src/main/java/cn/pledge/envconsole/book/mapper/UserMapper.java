@@ -66,15 +66,14 @@ public interface UserMapper {
 
     List<User> subordinateList(@Param("page") Integer page, @Param("size") Integer size, @Param("userId") Integer userId);
 
-    List<Integer> userList(@Param("page") Integer page, @Param("size") Integer size, @Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    List<Integer> userList(@Param("page") Integer page, @Param("size") Integer size, @Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress,@Param("hasFlow") Boolean hasFlow);
 
-    Integer userListTotal(@Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    Integer userListTotal(@Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress,@Param("hasFlow") Boolean hasFlow);
 
     List<Integer> selectAllByRootId(@Param("rootIds") List<Integer> userIds);
     @Select("select * from user where user_address = #{registerUserAddress} and currency_type = #{currencyType}")
     User selectUserByUserAddressAndCurrencyType(@Param("registerUserAddress")String registerUserAddress, @Param("currencyType")String currencyType);
-    @Update("truncate table `user`")
-    void dellAll();
+
 
     Integer selectNumByUserIds(@Param("rootIds")List<Integer> userIds);
 

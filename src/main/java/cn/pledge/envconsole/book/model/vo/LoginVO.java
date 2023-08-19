@@ -16,4 +16,6 @@ public class LoginVO {
     private String username;
     @ApiModelProperty("管理员角色 [admin -- 系统管理员；agency -- 代理管理员 ；--employee -- 业务员]")
     private String role;
+    @ApiModelProperty("管理表对呀用户表id")
+    private Integer userId;
 }

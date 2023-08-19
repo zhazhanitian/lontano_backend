@@ -369,16 +369,21 @@ public class ManagementService {
         if (RoleType.agency.toString().equals(userRole)||RoleType.employee.toString().equals(userRole)) {
             List<User> user = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
             userIds = user.stream().map(o->o.getId()).collect(Collectors.toList());
-        }
-        if (RoleType.agency.toString().equals(userRole)) {
-//            userIds = userMapper.userList(null, null,userIds,param.getRemark(),param.getUserAddress());
-            List<Integer> integers = userMapper.userList(null, null, userIds, param.getRemark(), param.getUserAddress());
+            if (RoleType.agency.toString().equals(userRole)){
+                List<Integer> integers = userMapper.userList(null, null, userIds, param.getRemark(), param.getUserAddress(),param.getHasFlow());
+                userIds.addAll(integers);
+            }
+            List<Integer> integers = userMapper.userList(null, null, userIds, param.getRemark(), param.getUserAddress(),param.getHasFlow());
             userIds.addAll(integers);
-
         }
-        List<Integer> userList = userMapper.userList((param.getPage() - 1) * param.getSize(), param.getSize(), userIds, param.getRemark(), param.getUserAddress());
+//        if (RoleType.agency.toString().equals(userRole)) {
+////            userIds = userMapper.userList(null, null,userIds,param.getRemark(),param.getUserAddress());
+//
+//
+//        }
+        List<Integer> userList = userMapper.userList((param.getPage() - 1) * param.getSize(), param.getSize(), userIds, param.getRemark(), param.getUserAddress(),param.getHasFlow());
 
-        Integer total = userMapper.userListTotal(userIds,param.getRemark(),param.getUserAddress());
+        Integer total = userMapper.userListTotal(userIds,param.getRemark(),param.getUserAddress(),param.getHasFlow());
 
         List<UserVO> collect = userList.stream().map(o -> {
             UserVO userVO = new UserVO();

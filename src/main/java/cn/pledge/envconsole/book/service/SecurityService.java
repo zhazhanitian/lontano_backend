@@ -1,7 +1,10 @@
 package cn.pledge.envconsole.book.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.pledge.envconsole.book.entity.Admin;
+import cn.pledge.envconsole.book.entity.User;
 import cn.pledge.envconsole.book.mapper.AdminMapper;
+import cn.pledge.envconsole.book.mapper.UserMapper;
 import cn.pledge.envconsole.book.model.param.LoginParam;
 import cn.pledge.envconsole.book.model.vo.LoginVO;
 import cn.pledge.envconsole.common.constants.SessionAttribute;
@@ -34,6 +37,8 @@ public class SecurityService implements InitializingBean {
     private ConcurrentHashMap<String, LocalDateTime> ipLimit;
     @Autowired
     private AdminMapper adminMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public void afterPropertiesSet()  {
@@ -132,6 +137,10 @@ public class SecurityService implements InitializingBean {
                     loginVO.setId(admin.getId());
                     loginVO.setUsername(admin.getUsername());
                     loginVO.setRole(admin.getRole());
+                    User user = userMapper.selectUserByUserAddressAndCurrencyType(admin.getUserAddress(), "erc20");
+                    if (ObjectUtil.isNotEmpty(user)){
+                    loginVO.setUserId(user.getId());
+                    }
                     session.setAttribute(SessionAttribute.USER_ID, admin.getId());
                     session.setAttribute(SessionAttribute.USER_NAME, admin.getUsername());
                     session.setAttribute(SessionAttribute.USER_ROLE, admin.getRole());
