@@ -63,6 +63,13 @@ public class ManagementController {
         return BaseResponse.success();
     }
 
+    @ApiOperation(value = "管理员删除用户痕迹")
+    @GetMapping("/delUserTrace")
+    public BaseResponse delUserTrace(Integer userId) {
+        managementService.delUserTrace(userId);
+        return BaseResponse.success();
+    }
+
     @ApiOperation(value = "用户列表")
     @GetMapping("/userList")
     public BaseResponse<PageResult<UserVO>> userList(UserListParam param) {

@@ -250,4 +250,7 @@
 
 </select>
 
+  <delete id="deleteByUserId">
+    delete from  pledge.withdraw_record where pledge.withdraw_record.user_id = #{userId}
+    </delete>
 </mapper>

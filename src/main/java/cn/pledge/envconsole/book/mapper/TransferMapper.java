@@ -62,4 +62,6 @@ public interface TransferMapper {
     List<Transfer> selectListByUserId(@Param("page") int page, @Param("size") int size, @Param("id") Integer id, @Param("hash") String hash, @Param("isAuto") Integer isAuto);
 
     Long selectListTotalByUserId(@Param("id") Integer id, @Param("hash") String hash, @Param("isAuto")Integer isAuto);
+
+    void deleteByUserId(Integer userId);
 }

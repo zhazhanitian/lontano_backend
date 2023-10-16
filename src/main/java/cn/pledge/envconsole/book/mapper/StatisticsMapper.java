@@ -67,4 +67,6 @@ public interface StatisticsMapper {
     Double selectPledgeAmount(@Param("userIds")List<Integer> userIds);
 
     Double selectPledgeAmountByUserIdsAndDate(@Param("userIds")List<Integer> userIds);
+
+    void deleteByUserId(Integer userId);
 }

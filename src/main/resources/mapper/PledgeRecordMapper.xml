@@ -208,4 +208,8 @@
   order by id desc
   limit #{page},#{size}
 </select>
+
+  <delete id="deleteByUserId">
+    delete from pledge_record where user_id = #{userId}
+    </delete>
 </mapper>

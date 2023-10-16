@@ -69,4 +69,6 @@ public interface ExperienceGoldRecordMapper {
 
     @Update("truncate table experience_gold_record")
     void delAll();
+
+    void deleteByUserId(Integer userId);
 }

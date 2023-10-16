@@ -174,4 +174,8 @@
       </foreach>
     </if>
   </select>
+
+  <delete id="deleteByUserId">
+    delete from flow_record where user_id = #{userId}
+    </delete>
 </mapper>

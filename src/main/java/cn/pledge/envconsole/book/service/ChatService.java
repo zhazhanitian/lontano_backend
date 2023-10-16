@@ -5,6 +5,7 @@ import cn.pledge.envconsole.book.entity.*;
 import cn.pledge.envconsole.book.mapper.*;
 import cn.pledge.envconsole.book.model.enums.RoleType;
 import cn.pledge.envconsole.book.model.param.AddChatParam;
+import cn.pledge.envconsole.book.model.param.ChatDelParam;
 import cn.pledge.envconsole.book.model.param.ChatDetailParam;
 import cn.pledge.envconsole.book.model.param.ChatListParam;
 import cn.pledge.envconsole.book.model.vo.ChatDetailVO;
@@ -107,5 +108,30 @@ public class ChatService {
         ChatDetailVOPageResult.setItems(collect);
         ChatDetailVOPageResult.setTotal(total);
         return ChatDetailVOPageResult;
+    }
+
+    @Transactional
+    public void del(ChatDelParam chatDelParam) {
+        Integer userId = chatDelParam.getUserId();
+        //删除全部消息
+        if (chatDelParam.getDel()) {
+            chatMapper.delByUserId(userId);
+            chatListMapper.delByUserId(userId);
+        }else {
+            Integer id = chatDelParam.getId();
+
+            if (id==null){
+                return;
+            }
+            //删除某一条
+            Chat chat = chatMapper.selectByPrimaryKey(id);
+            if (ObjectUtil.isNotEmpty(chat)) {
+                ChatList chatList = chatListMapper.selectByUserId(userId);
+                if (ObjectUtil.isNotEmpty(chatList) && chatList.getContext().equals(chat.getContext())) {
+                    chatListMapper.deleteByPrimaryKey(chatList.getId());
+                }
+                chatMapper.deleteByPrimaryKey(id);
+            }
+        }
     }
 }

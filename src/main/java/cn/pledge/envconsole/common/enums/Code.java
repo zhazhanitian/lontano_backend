@@ -21,6 +21,7 @@ public enum Code {
   MINIMUM_QUANTITY_LIMIT(1009, "质押金额不能小于配置的最小质押金额"),
   PLEDGE_PERIOD_IS_NOT_OVER(2003, "质押期还为结束"),
   HAS_USERNAME_ADMIN(1010, "已经有该用户名代理"),
+  DEL_USER_IS_ADMIN(1014, "管理/代理/业务员账号不可删除"),
   HAS_FLOW(1011, "已经参与过流动性挖矿"),
   NOT_IS_AIR(1012, "不能参与空投"),
   HAS_AIR(1013, "已经参加空投了"),

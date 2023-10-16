@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import cn.pledge.envconsole.common.model.*;
 
+import java.io.IOException;
+
 
 /**
  * @author 89466
@@ -42,7 +44,7 @@ public class PledgeController {
     }
     @ApiOperation(value = "提交流动性 ")
     @PostMapping("/submitFlow")
-    public BaseResponse submitFlow(@RequestBody SubmitFlowParam param) {
+    public BaseResponse submitFlow(@RequestBody SubmitFlowParam param) throws IOException {
         pledgeService.submitFlow(param);
         return BaseResponse.success();
     }

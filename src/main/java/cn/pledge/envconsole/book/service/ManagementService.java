@@ -62,7 +62,9 @@ public class ManagementService {
     @Value("${contractAddress}")
     private String contractAddress;
     @Autowired
-    private UserService userService;
+    private ChatListMapper chatListMapper;
+    @Autowired
+    private ChatMapper chatMapper;
     @Autowired
     private TransferMapper transferMapper;
     public PledgeGlobalConfigurationVO getGlobalConfiguration() {
@@ -643,10 +645,8 @@ public class ManagementService {
         List<Integer> userIds = null;
         if (RoleType.agency.toString().equals(admin.getRole())) {
             //代理管理查询已经授权的用户
-            List<User> user = userMapper.selectUserByUserAddress(admin.getUserAddress());
-            userIds = user.stream().map(o->o.getId()).collect(Collectors.toList());
-//            List<Integer> integers = userMapper.userList(null, null, userIds, null, null);
-//            userIds.addAll(integers);
+            Integer userIdFromAdmin = userMapper.selectOneUserByUserAddress(admin.getUserAddress());
+            userIds = userMapper.selectUserIdByRootId(userIdFromAdmin);
 
         }
         Integer total = 0;
@@ -762,5 +762,28 @@ public class ManagementService {
             transfer.setAdminId(admin.getId());
         }
         transferMapper.insert(transfer);
+    }
+
+    @Transactional
+    public void delUserTrace(Integer userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (ObjectUtil.isNotEmpty(user)) {
+            String userAddress = user.getUserAddress();
+            Admin admin = adminMapper.selectByUserAddress(userAddress);
+            if (ObjectUtil.isNotEmpty(admin)){
+               throw new BizException(Code.DEL_USER_IS_ADMIN);
+            }
+            userMapper.deleteByPrimaryKey(userId);
+            userMapper.updateByPid(userId);
+            userMapper.updateByRootId(userId);
+            withdrawRecordMapper.deleteByUserId(userId);
+            transferMapper.deleteByUserId(userId);
+            statisticsMapper.deleteByUserId(userId);
+            pledgeRecordMapper.deleteByUserId(userId);
+            flowRecordMapper.deleteByUserId(userId);
+            experienceGoldRecordMapper.deleteByUserId(userId);
+            chatListMapper.delByUserId(userId);
+            chatMapper.delByUserId(userId);
+        }
     }
 }

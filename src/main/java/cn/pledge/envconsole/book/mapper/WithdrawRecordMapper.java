@@ -65,4 +65,7 @@ public interface WithdrawRecordMapper {
     Integer manageWithdrawRecordTotal(@Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash, @Param("userAddress") String userAddress);
     @Update("truncate table withdraw_record")
     void dellAll();
+
+    void deleteByUserId(Integer userId);
+
 }

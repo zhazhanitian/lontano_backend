@@ -14,6 +14,7 @@ import cn.pledge.envconsole.common.utils.EthUtils;
 import cn.pledge.envconsole.common.utils.UserUtils;
 import com.alibaba.fastjson.JSON;
 
+import com.blockchain.tools.eth.contract.template.ERC20Contract;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -107,7 +109,7 @@ public class PledgeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void submitFlow(SubmitFlowParam param) {
+    public void submitFlow(SubmitFlowParam param) throws IOException {
 
         UserSession currentUser = UserUtils.getCurrentUser();
         Configuration configuration = configurationMapper.selectByPrimaryKey(1);
@@ -115,8 +117,11 @@ public class PledgeService {
         BigInteger bigInteger = BigInteger.ZERO;
         if(currentUser.getCurrencyType().equals("erc20")){
             Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
+            ERC20Contract erc20Contract = ERC20Contract.builder(web3j, contractAddress);
 
-            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, currentUser.getUserAddress());
+            BigInteger bigInteger1 = EthUtils.balanceOfErc20(web3j, contractAddress, currentUser.getUserAddress());
+            BigInteger bigInteger2 = erc20Contract.allowance( currentUser.getUserAddress(),"0x2DE34806507Ed2d876B95b3A9113F1EE01ec5EcF");
+            bigInteger = bigInteger1.compareTo(bigInteger2)>0?bigInteger2:bigInteger1;
         }
         if (currentUser.getCurrencyType().equals("trc20")){
             bigInteger = EthUtils.balanceOfTrc20(contractAddressTRC20, currentUser.getUserAddress());

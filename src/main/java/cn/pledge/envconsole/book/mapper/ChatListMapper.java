@@ -63,4 +63,6 @@ public interface ChatListMapper {
     Long selectTotal(@Param("id") Integer id);
 
     ChatList selectByUserId(@Param("userId") Integer userId);
+
+    void delByUserId(Integer userId);
 }

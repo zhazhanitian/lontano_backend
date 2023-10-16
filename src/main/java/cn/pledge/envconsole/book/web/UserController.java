@@ -3,45 +3,26 @@ package cn.pledge.envconsole.book.web;
 import cn.pledge.envconsole.book.model.param.RegisterParam;
 import cn.pledge.envconsole.book.model.vo.RegisterVO;
 import cn.pledge.envconsole.book.service.UserService;
+import cn.pledge.envconsole.common.interceptor.Decrypt;
+import cn.pledge.envconsole.common.interceptor.DecryptMethod;
+import cn.pledge.envconsole.common.interceptor.EncryptField;
+import cn.pledge.envconsole.common.interceptor.EncryptMethod;
 import cn.pledge.envconsole.common.model.BaseResponse;
-import cn.pledge.envconsole.common.utils.EthUtils;
 
 
-import cn.pledge.envconsole.common.utils.TronUtils;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 //import org.tron.common.utils.ByteArray;
-import org.web3j.abi.FunctionEncoder;
 
 
-import org.web3j.abi.FunctionReturnDecoder;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Function;
-import org.web3j.abi.datatypes.Type;
-import org.web3j.abi.datatypes.generated.Uint256;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.request.Transaction;
-import org.web3j.protocol.core.methods.response.EthCall;
-import org.web3j.protocol.http.HttpService;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 
 //import static org.tron.walletserver.WalletApi.decodeFromBase58Check;
 
@@ -59,6 +40,8 @@ public class UserController {
     private  UserService userService;
     @ApiOperation(value = "注册/登入")
     @PostMapping("/register")
+//    @DecryptMethod
+//    @Decrypt
     public BaseResponse<RegisterVO> register(@RequestBody RegisterParam param,@ApiIgnore HttpSession session) {
         RegisterVO register = userService.register(param,session);
         return BaseResponse.success(register);

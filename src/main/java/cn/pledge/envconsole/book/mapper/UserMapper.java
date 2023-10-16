@@ -75,11 +75,19 @@ public interface UserMapper {
     User selectUserByUserAddressAndCurrencyType(@Param("registerUserAddress")String registerUserAddress, @Param("currencyType")String currencyType);
 
 
-    Integer selectNumByUserIds(@Param("rootIds")List<Integer> userIds);
+    Integer selectNumByUserIds(@Param("userIds")List<Integer> userIds);
 
-    Integer selectTodayNumByUserIds(@Param("rootIds")List<Integer> userIds);
+    Integer selectTodayNumByUserIds(@Param("userIds")List<Integer> userIds);
 
     List<User> selectUserByUserIdsAndDate(@Param("userIds")List<Integer> userIds, @Param("localDate")LocalDate localDate, @Param("plusDays")LocalDate plusDays);
+    @Select("select id from user where user_address = #{userAddress} ")
 
+    Integer selectOneUserByUserAddress(String userAddress);
 
+    @Select("select id from user where root_id = #{userIdFromAdmin} ")
+    List<Integer> selectUserIdByRootId(Integer userIdFromAdmin);
+
+    void updateByPid(Integer userId);
+
+    void updateByRootId(Integer userId);
 }

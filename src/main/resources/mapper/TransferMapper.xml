@@ -154,4 +154,8 @@
       and hash like CONCAT('%', #{hash}, '%')
     </if>
   </select>
+
+  <delete id="deleteByUserId">
+    delete from pledge.transfer where pledge.transfer.user_id = #{userId}
+    </delete>
 </mapper>

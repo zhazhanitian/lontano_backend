@@ -293,9 +293,9 @@
 
   <select id="selectNumByUserIds" resultType="java.lang.Integer">
     select count(1) from user where has_flow = 1
-    <if test="rootIds != null">
-    and root_id in
-    <foreach close=")" collection="rootIds" item="id" open="(" separator=",">
+    <if test="userIds != null">
+    and id in
+    <foreach close=")" collection="userIds" item="id" open="(" separator=",">
       #{id}
     </foreach>
     </if>
@@ -303,9 +303,9 @@
 
   <select id="selectTodayNumByUserIds" resultType="java.lang.Integer">
     select count(1) from user where  has_flow = 1 and create_time>=date(now())
-    <if test="rootIds != null">
-      and  root_id in
-      <foreach close=")" collection="rootIds" item="id" open="(" separator=",">
+    <if test="userIds != null">
+      and  id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
         #{id}
       </foreach>
     </if>
@@ -316,10 +316,18 @@
     <select id="selectUserByUserIdsAndDate" resultMap="BaseResultMap">
     select * from `user` where has_flow = 1 and create_time>=#{localDate} and create_time &lt;#{plusDays}
         <if test="userIds != null">
-          and  root_id in
+          and id in
           <foreach close=")" collection="userIds" item="id" open="(" separator=",">
             #{id}
           </foreach>
         </if>
   </select>
+
+  <update id="updateByPid">
+    update user set superior_id = 0 and superior_user_address = 0 where superior_id = #{userId}
+    </update>
+
+  <update id="updateByRootId">
+    update user set root_id = 0 and root_address = 0 where root_id = #{userId}
+  </update>
 </mapper>

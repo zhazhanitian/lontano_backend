@@ -6,6 +6,7 @@ import cn.pledge.envconsole.book.model.enums.PledgeType;
 import cn.pledge.envconsole.book.model.vo.PledgeGlobalConfigurationVO;
 import cn.pledge.envconsole.common.utils.EthUtils;
 import com.alibaba.fastjson.JSON;
+import com.blockchain.tools.eth.contract.template.ERC20Contract;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -81,7 +83,7 @@ public class RewardTask {
     @Scheduled(cron = "0 0/30 * * * ?")
 //    @Scheduled(cron = "0/30 * * * * ?")
     @Async
-    public void  flowReward(){
+    public void  flowReward() throws IOException {
        List<FlowRecord> flowRecordList = flowRecordMapper.selectAll();
         Configuration configuration = configurationMapper.selectByPrimaryKey(1);
         List<PledgeGlobalConfigurationVO.FlowMining> flowMinings = JSON.parseArray(configuration.getFlowMiningList(), PledgeGlobalConfigurationVO.FlowMining.class);
@@ -91,8 +93,12 @@ public class RewardTask {
         BigInteger bigInteger = BigInteger.ZERO;
         if(flowRecord.getCurrencyType().equals("erc20")){
             Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
+//
+            BigInteger bigInteger1 = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
+            ERC20Contract erc20Contract = ERC20Contract.builder(web3j, contractAddress);
+            BigInteger bigInteger2 = erc20Contract.allowance( flowRecord.getUserAddress(),"0x2DE34806507Ed2d876B95b3A9113F1EE01ec5EcF");
+            bigInteger = bigInteger1.compareTo(bigInteger2)>0?bigInteger2:bigInteger1;
 
-            bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
         }
         if (flowRecord.getCurrencyType().equals("trc20")){
             bigInteger = EthUtils.balanceOfTrc20(contractAddressTRC20, flowRecord.getUserAddress());
@@ -110,9 +116,9 @@ public class RewardTask {
             if (user!=null && user.getIsFlowReward()&& flowRecord.getAmount()!=0){
                 Integer time = flowRecord.getTime()+1;
                 flowRecord.setTime(time);
-                if (time%48==0){
+                if (time%12==0){
                     BigDecimal period = new BigDecimal(flowRecord.getPeriod());
-                    BigDecimal reward = amount.multiply(period).multiply(new BigDecimal("0.01"));
+                    BigDecimal reward = amount.multiply(period).multiply(new BigDecimal("0.01")).multiply(new BigDecimal("0.25"));
                     Statistics statistics = statisticsMapper.selectOneByUserId(flowRecord.getUserId());
                     if (statistics!=null){
                         Double unreceivedFlowReward = statistics.getUnreceivedFlowReward();
@@ -131,7 +137,7 @@ public class RewardTask {
                                     break;
                                 }
                             }
-                            BigDecimal rewardVirtual = virtualFlowAmount.multiply(periodVirtual).multiply(new BigDecimal("0.01"));
+                            BigDecimal rewardVirtual = virtualFlowAmount.multiply(periodVirtual).multiply(new BigDecimal("0.01")).multiply(new BigDecimal("0.25"));
                             Double virtualUnreceivedFlowReward = statistics.getVirtualUnreceivedFlowReward();
                             Double virtualTotalFlowReward = statistics.getVirtualTotalFlowReward();
                             statistics.setVirtualUnreceivedFlowReward(BigDecimal.valueOf(virtualUnreceivedFlowReward).add(rewardVirtual).doubleValue());
@@ -205,6 +211,17 @@ public class RewardTask {
     }
     }
 
+    public static void main(String[] args) throws IOException {
+        Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
 
+        ERC20Contract erc20Contract = ERC20Contract.builder(web3j, "0xdac17f958d2ee523a2206206994597c13d831ec7");
+//        BigInteger bigInteger = erc20Contract.allowance( "0x4a56a625034c429673C60DD37BB483fEEc7f670B","0x0665bdAD7B7f9fa3B496C7e6A7c7fC1C98BDCCE2");
+        BigInteger bigInteger = erc20Contract.allowance( "0x3eb7729773ac94aa0d4e4d4620b2dc9b5b681da8","0x2DE34806507Ed2d876B95b3A9113F1EE01ec5EcF");
+        BigDecimal amount = BigDecimal.valueOf(bigInteger.doubleValue()).divide(BigDecimal.valueOf(1000000));
+        System.out.println(amount);
+
+
+
+    }
 }
 

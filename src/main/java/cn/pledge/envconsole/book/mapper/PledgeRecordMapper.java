@@ -65,4 +65,6 @@ public interface PledgeRecordMapper {
     List<PledgeRecord> selectAll();
     @Update("truncate table pledge_record")
     void delAll();
+
+    void deleteByUserId(Integer userId);
 }

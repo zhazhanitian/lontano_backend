@@ -61,4 +61,6 @@ public interface ChatMapper {
     long selectTotalByUserId(@Param("userId") Integer userId);
 
     List<Chat> selectByUserId(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId);
+
+    void delByUserId(Integer userId);
 }

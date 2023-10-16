@@ -243,4 +243,7 @@
 
 </select>
 
+  <delete id="deleteByUserId">
+    delete from experience_gold_record where user_id = #{userId}
+    </delete>
 </mapper>

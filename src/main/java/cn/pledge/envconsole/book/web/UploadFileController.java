@@ -3,6 +3,7 @@ package cn.pledge.envconsole.book.web;
 
 import cn.pledge.envconsole.book.model.vo.UploadFileDTO;
 import cn.pledge.envconsole.book.service.UploadFileService;
+import cn.pledge.envconsole.common.interceptor.DecryptMethod;
 import cn.pledge.envconsole.common.model.BaseResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +55,7 @@ public class UploadFileController {
      */
     @PostMapping(value = "/file/uploadFile")
     @ApiOperation(value = "上传文件",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+
     public BaseResponse uploadFile(MultipartFile file) {
         UploadFileDTO uploadFileDTO = uploadFileService.uploadFile(file);
         return BaseResponse.success(uploadFileDTO);

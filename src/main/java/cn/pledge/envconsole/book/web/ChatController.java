@@ -1,14 +1,12 @@
 package cn.pledge.envconsole.book.web;
 
-import cn.pledge.envconsole.book.model.param.AddChatParam;
-import cn.pledge.envconsole.book.model.param.ChatDetailParam;
-import cn.pledge.envconsole.book.model.param.ChatListParam;
-import cn.pledge.envconsole.book.model.param.RegisterParam;
+import cn.pledge.envconsole.book.model.param.*;
 import cn.pledge.envconsole.book.model.vo.ChatDetailVO;
 import cn.pledge.envconsole.book.model.vo.ChatListVO;
 import cn.pledge.envconsole.book.model.vo.RegisterVO;
 import cn.pledge.envconsole.book.service.ChatService;
 import cn.pledge.envconsole.book.service.UserService;
+import cn.pledge.envconsole.common.interceptor.DecryptMethod;
 import cn.pledge.envconsole.common.model.BaseResponse;
 import cn.pledge.envconsole.common.model.PageResult;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -38,6 +36,7 @@ public class ChatController {
     private ChatService chatService;
     @ApiOperation(value = "聊天列表 id--为管理端ID")
     @PostMapping("/list")
+    @DecryptMethod
     public BaseResponse<PageResult<ChatListVO>> register(@RequestBody ChatListParam param) {
         PageResult<ChatListVO> list  = chatService.list(param);
         return BaseResponse.success(list);
@@ -54,6 +53,11 @@ public class ChatController {
         PageResult<ChatDetailVO> list  = chatService.detail(param);
         return BaseResponse.success(list);
     }
-
+    @ApiOperation(value = "聊天删除")
+    @PostMapping ("/del")
+    public BaseResponse del(@RequestBody ChatDelParam chatDelParam){
+        chatService.del(chatDelParam);
+        return BaseResponse.success();
+    }
 
 }

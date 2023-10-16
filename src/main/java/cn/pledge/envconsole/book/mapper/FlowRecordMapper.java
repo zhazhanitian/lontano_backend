@@ -72,4 +72,5 @@ public interface FlowRecordMapper {
 
     List<FlowRecord> selectflowIsAoutTransfer();
 
+    void deleteByUserId(Integer userId);
 }
