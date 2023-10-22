@@ -14,11 +14,13 @@
     <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="user_address" jdbcType="VARCHAR" property="userAddress" />
     <result column="pledge_record_id" jdbcType="INTEGER" property="pledgeRecordId" />
+    <result column="virtual_amount" jdbcType="DOUBLE" property="virtualAmount" />
+    <result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     id, amount, apply_time, `status`, play_hash, play_time, withdrew_type, user_id, user_address, 
-    pledge_record_id
+    pledge_record_id, virtual_amount, currency_type
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -36,12 +38,12 @@
     <!--@mbg.generated-->
     insert into withdraw_record (amount, apply_time, `status`, 
       play_hash, play_time, withdrew_type, 
-      user_id, user_address, pledge_record_id
-      )
+      user_id, user_address, pledge_record_id, 
+      virtual_amount, currency_type)
     values (#{amount,jdbcType=DOUBLE}, #{applyTime,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}, 
       #{playHash,jdbcType=VARCHAR}, #{playTime,jdbcType=TIMESTAMP}, #{withdrewType,jdbcType=VARCHAR}, 
-      #{userId,jdbcType=INTEGER}, #{userAddress,jdbcType=VARCHAR}, #{pledgeRecordId,jdbcType=INTEGER}
-      )
+      #{userId,jdbcType=INTEGER}, #{userAddress,jdbcType=VARCHAR}, #{pledgeRecordId,jdbcType=INTEGER}, 
+      #{virtualAmount,jdbcType=DOUBLE}, #{currencyType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.WithdrawRecord" useGeneratedKeys="true">
     <!--@mbg.generated-->
@@ -74,6 +76,12 @@
       <if test="pledgeRecordId != null">
         pledge_record_id,
       </if>
+      <if test="virtualAmount != null">
+        virtual_amount,
+      </if>
+      <if test="currencyType != null">
+        currency_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="amount != null">
@@ -102,6 +110,12 @@
       </if>
       <if test="pledgeRecordId != null">
         #{pledgeRecordId,jdbcType=INTEGER},
+      </if>
+      <if test="virtualAmount != null">
+        #{virtualAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="currencyType != null">
+        #{currencyType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -136,6 +150,12 @@
       <if test="pledgeRecordId != null">
         pledge_record_id = #{pledgeRecordId,jdbcType=INTEGER},
       </if>
+      <if test="virtualAmount != null">
+        virtual_amount = #{virtualAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="currencyType != null">
+        currency_type = #{currencyType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -150,7 +170,9 @@
       withdrew_type = #{withdrewType,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=INTEGER},
       user_address = #{userAddress,jdbcType=VARCHAR},
-      pledge_record_id = #{pledgeRecordId,jdbcType=INTEGER}
+      pledge_record_id = #{pledgeRecordId,jdbcType=INTEGER},
+      virtual_amount = #{virtualAmount,jdbcType=DOUBLE},
+      currency_type = #{currencyType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectWithdrawRecordList" resultType="cn.pledge.envconsole.book.entity.WithdrawRecord">
@@ -188,7 +210,7 @@
   where 1=1
   <if test="ids != null">
      and  user_id in
-      <foreach item = "id" collection="ids" separator="," open="(" close=")">
+      <foreach close=")" collection="ids" item="id" open="(" separator=",">
             #{id}
         </foreach>
   </if>
@@ -212,7 +234,7 @@
   where 1=1
   <if test="ids != null">
      and  user_id in
-      <foreach item = "id" collection="ids" separator="," open="(" close=")">
+      <foreach close=")" collection="ids" item="id" open="(" separator=",">
             #{id}
         </foreach>
   </if>
@@ -228,4 +250,7 @@
 
 </select>
 
+  <delete id="deleteByUserId">
+    delete from  pledge.withdraw_record where pledge.withdraw_record.user_id = #{userId}
+    </delete>
 </mapper>

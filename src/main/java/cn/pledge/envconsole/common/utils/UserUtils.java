@@ -25,7 +25,7 @@ public class UserUtils {
                 if (principal instanceof UserSession) {
                     UserSession userSession =(UserSession) principal;
                     if (StringUtils.isEmpty(userSession.getUserAddress())){
-//                        throw new BizException(Code.NEED_AUTH);
+                        throw new BizException(Code.NEED_AUTH);
                     }
                     return userSession;
                 }

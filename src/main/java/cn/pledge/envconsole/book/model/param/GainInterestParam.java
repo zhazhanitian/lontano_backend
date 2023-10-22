@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @ToString
 public class GainInterestParam implements Serializable {
-    private String userAddress;
+    private Integer userId;
     private GainInterestType type;
 
 }

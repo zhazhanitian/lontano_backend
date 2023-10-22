@@ -6,5 +6,6 @@ package cn.pledge.envconsole.book.model.enums;
 
 public enum RoleType {
     admin,
-    agency
+    agency,
+    employee
 }

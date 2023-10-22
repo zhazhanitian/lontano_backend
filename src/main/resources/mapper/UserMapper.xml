@@ -14,11 +14,18 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="root_id" jdbcType="INTEGER" property="rootId" />
     <result column="root_address" jdbcType="VARCHAR" property="rootAddress" />
+    <result column="has_flow" jdbcType="BOOLEAN" property="hasFlow" />
+    <result column="system_message" jdbcType="VARCHAR" property="systemMessage" />
+    <result column="is_notice" jdbcType="BOOLEAN" property="isNotice" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="has_email" jdbcType="BOOLEAN" property="hasEmail" />
+    <result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     id, user_address, create_time, superior_user_address, is_flow_reward, is_withdrawal_auth, 
-    superior_id, remark, root_id, root_address
+    superior_id, remark, root_id, root_address, has_flow, system_message, is_notice, 
+    email, has_email, currency_type
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -36,11 +43,15 @@
     <!--@mbg.generated-->
     insert into `user` (user_address, create_time, superior_user_address, 
       is_flow_reward, is_withdrawal_auth, superior_id, 
-      remark, root_id, root_address
+      remark, root_id, root_address, 
+      has_flow, system_message, is_notice, 
+      email, has_email, currency_type
       )
     values (#{userAddress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{superiorUserAddress,jdbcType=VARCHAR}, 
       #{isFlowReward,jdbcType=BOOLEAN}, #{isWithdrawalAuth,jdbcType=BOOLEAN}, #{superiorId,jdbcType=INTEGER}, 
-      #{remark,jdbcType=VARCHAR}, #{rootId,jdbcType=INTEGER}, #{rootAddress,jdbcType=VARCHAR}
+      #{remark,jdbcType=VARCHAR}, #{rootId,jdbcType=INTEGER}, #{rootAddress,jdbcType=VARCHAR}, 
+      #{hasFlow,jdbcType=BOOLEAN}, #{systemMessage,jdbcType=VARCHAR}, #{isNotice,jdbcType=BOOLEAN}, 
+      #{email,jdbcType=VARCHAR}, #{hasEmail,jdbcType=BOOLEAN}, #{currencyType,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.User" useGeneratedKeys="true">
@@ -74,6 +85,24 @@
       <if test="rootAddress != null">
         root_address,
       </if>
+      <if test="hasFlow != null">
+        has_flow,
+      </if>
+      <if test="systemMessage != null">
+        system_message,
+      </if>
+      <if test="isNotice != null">
+        is_notice,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="hasEmail != null">
+        has_email,
+      </if>
+      <if test="currencyType != null">
+        currency_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userAddress != null">
@@ -102,6 +131,24 @@
       </if>
       <if test="rootAddress != null">
         #{rootAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hasFlow != null">
+        #{hasFlow,jdbcType=BOOLEAN},
+      </if>
+      <if test="systemMessage != null">
+        #{systemMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isNotice != null">
+        #{isNotice,jdbcType=BOOLEAN},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="hasEmail != null">
+        #{hasEmail,jdbcType=BOOLEAN},
+      </if>
+      <if test="currencyType != null">
+        #{currencyType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -136,6 +183,24 @@
       <if test="rootAddress != null">
         root_address = #{rootAddress,jdbcType=VARCHAR},
       </if>
+      <if test="hasFlow != null">
+        has_flow = #{hasFlow,jdbcType=BOOLEAN},
+      </if>
+      <if test="systemMessage != null">
+        system_message = #{systemMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isNotice != null">
+        is_notice = #{isNotice,jdbcType=BOOLEAN},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="hasEmail != null">
+        has_email = #{hasEmail,jdbcType=BOOLEAN},
+      </if>
+      <if test="currencyType != null">
+        currency_type = #{currencyType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -150,7 +215,13 @@
       superior_id = #{superiorId,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR},
       root_id = #{rootId,jdbcType=INTEGER},
-      root_address = #{rootAddress,jdbcType=VARCHAR}
+      root_address = #{rootAddress,jdbcType=VARCHAR},
+      has_flow = #{hasFlow,jdbcType=BOOLEAN},
+      system_message = #{systemMessage,jdbcType=VARCHAR},
+      is_notice = #{isNotice,jdbcType=BOOLEAN},
+      email = #{email,jdbcType=VARCHAR},
+      has_email = #{hasEmail,jdbcType=BOOLEAN},
+      currency_type = #{currencyType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="subordinateList" resultType="cn.pledge.envconsole.book.entity.User">
@@ -166,8 +237,12 @@
   id
   from user
   where 1=1
-  <if test="userId != null">
-     and  superior_id = #{userId}
+  <if test="userIds != null ">
+  and  superior_id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+            #{id}
+        </foreach>
+
   </if>
   <if test="remark != null">
      and  remark like CONCAT('%', #{remark}, '%')
@@ -175,16 +250,25 @@
    <if test="userAddress != null">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
+  <if test="hasFlow != null">
+    and  has_flow like CONCAT('%', #{hasFlow}, '%')
+  </if>
   order by id desc
-  limit #{page},#{size}
+  <if test="page != null and size != null">
+    limit #{page},#{size}
+  </if>
+
 </select>
 <select id="userListTotal" resultType="java.lang.Integer">
   select
   count(1)
   from user
   where 1=1
-  <if test="userId != null">
-     and  superior_id = #{userId}
+  <if test="userIds != null ">
+  and  superior_id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+            #{id}
+        </foreach>
   </if>
   <if test="remark != null">
      and  remark like CONCAT('%', #{remark}, '%')
@@ -192,10 +276,58 @@
    <if test="userAddress != null">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
-
+  <if test="hasFlow != null">
+    and  has_flow like CONCAT('%', #{hasFlow}, '%')
+  </if>
 </select>
 <select id="selectAllByRootId" resultType="java.lang.Integer">
-  select id from user where root_id =#{rootId}
+  select id from user
+  <if test="rootIds != null">
+  where root_id in
+   <foreach close=")" collection="rootIds" item="id" open="(" separator=",">
+            #{id}
+   </foreach>
+  </if>
 
 </select>
+
+  <select id="selectNumByUserIds" resultType="java.lang.Integer">
+    select count(1) from user where has_flow = 1
+    <if test="userIds != null">
+    and id in
+    <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+    </if>
+  </select>
+
+  <select id="selectTodayNumByUserIds" resultType="java.lang.Integer">
+    select count(1) from user where  has_flow = 1 and create_time>=date(now())
+    <if test="userIds != null">
+      and  id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+        #{id}
+      </foreach>
+    </if>
+  </select>
+
+
+
+    <select id="selectUserByUserIdsAndDate" resultMap="BaseResultMap">
+    select * from `user` where has_flow = 1 and create_time>=#{localDate} and create_time &lt;#{plusDays}
+        <if test="userIds != null">
+          and id in
+          <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+            #{id}
+          </foreach>
+        </if>
+  </select>
+
+  <update id="updateByPid">
+    update user set superior_id = 0 and superior_user_address = 0 where superior_id = #{userId}
+    </update>
+
+  <update id="updateByRootId">
+    update user set root_id = 0 and root_address = 0 where root_id = #{userId}
+  </update>
 </mapper>

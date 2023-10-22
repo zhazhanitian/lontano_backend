@@ -14,6 +14,5 @@ import java.io.Serializable;
 public class WithdrawalPrincipalParam implements Serializable {
     @ApiModelProperty("id 质押记录id")
     private Integer id;
-    @ApiModelProperty("用户地址")
-    private String userAddress;
+
 }

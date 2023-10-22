@@ -22,5 +22,6 @@ public class AgencyAdminVO {
     @ApiModelProperty("注册时间")
     private Long createTime;
     private String remark;
+    private Integer parentId;
 
 }

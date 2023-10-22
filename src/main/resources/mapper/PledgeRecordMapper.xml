@@ -17,11 +17,12 @@
     <result column="stop_time" jdbcType="TIMESTAMP" property="stopTime" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="income" jdbcType="DOUBLE" property="income" />
+    <result column="is_virtual" jdbcType="BOOLEAN" property="isVirtual" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     id, user_id, user_address, create_time, pledge_hash, amount, currency_type, is_reward, 
-    profit, period, stop_time, `status`, income
+    profit, period, stop_time, `status`, income, is_virtual
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -40,13 +41,13 @@
     insert into pledge_record (user_id, user_address, create_time, 
       pledge_hash, amount, currency_type, 
       is_reward, profit, period, 
-      stop_time, `status`, income
-      )
+      stop_time, `status`, income, 
+      is_virtual)
     values (#{userId,jdbcType=INTEGER}, #{userAddress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{pledgeHash,jdbcType=VARCHAR}, #{amount,jdbcType=DOUBLE}, #{currencyType,jdbcType=VARCHAR}, 
       #{isReward,jdbcType=BOOLEAN}, #{profit,jdbcType=VARCHAR}, #{period,jdbcType=VARCHAR}, 
-      #{stopTime,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}, #{income,jdbcType=DOUBLE}
-      )
+      #{stopTime,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}, #{income,jdbcType=DOUBLE}, 
+      #{isVirtual,jdbcType=BOOLEAN})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.PledgeRecord" useGeneratedKeys="true">
     <!--@mbg.generated-->
@@ -88,6 +89,9 @@
       <if test="income != null">
         income,
       </if>
+      <if test="isVirtual != null">
+        is_virtual,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
@@ -125,6 +129,9 @@
       </if>
       <if test="income != null">
         #{income,jdbcType=DOUBLE},
+      </if>
+      <if test="isVirtual != null">
+        #{isVirtual,jdbcType=BOOLEAN},
       </if>
     </trim>
   </insert>
@@ -168,6 +175,9 @@
       <if test="income != null">
         income = #{income,jdbcType=DOUBLE},
       </if>
+      <if test="isVirtual != null">
+        is_virtual = #{isVirtual,jdbcType=BOOLEAN},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -185,10 +195,11 @@
       period = #{period,jdbcType=VARCHAR},
       stop_time = #{stopTime,jdbcType=TIMESTAMP},
       `status` = #{status,jdbcType=VARCHAR},
-      income = #{income,jdbcType=DOUBLE}
+      income = #{income,jdbcType=DOUBLE},
+      is_virtual = #{isVirtual,jdbcType=BOOLEAN}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="PledgeRecordByUserAddress" resultType="cn.pledge.envconsole.book.entity.PledgeRecord">
+  <select id="PledgeRecordByUserId" resultType="cn.pledge.envconsole.book.entity.PledgeRecord">
   select * from pledge_record
   where user_id= #{userId}
   <if test="pledgeHash != null">
@@ -197,4 +208,8 @@
   order by id desc
   limit #{page},#{size}
 </select>
+
+  <delete id="deleteByUserId">
+    delete from pledge_record where user_id = #{userId}
+    </delete>
 </mapper>

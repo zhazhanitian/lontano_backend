@@ -1,7 +1,9 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.ExperienceGoldRecord;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import java.util.List;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface ExperienceGoldRecordMapper {
@@ -62,4 +64,11 @@ public interface ExperienceGoldRecordMapper {
     List<ExperienceGoldRecord> manageExperienceGoldRecord(@Param("page") int page, @Param("size") int size, @Param("ids") List<Integer> userList, @Param("remark") String remark,@Param("userAddress")String userAddress);
 
     Integer manageExperienceGoldRecordTotal(@Param("ids") List<Integer> userList, @Param("remark") String remark,@Param("userAddress")String userAddress);
+
+    Double selectTotalExperienceGoldByUserId(@Param("id")Integer id);
+
+    @Update("truncate table experience_gold_record")
+    void delAll();
+
+    void deleteByUserId(Integer userId);
 }

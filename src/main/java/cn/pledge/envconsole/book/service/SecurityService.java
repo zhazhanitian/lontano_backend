@@ -1,7 +1,10 @@
 package cn.pledge.envconsole.book.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.pledge.envconsole.book.entity.Admin;
+import cn.pledge.envconsole.book.entity.User;
 import cn.pledge.envconsole.book.mapper.AdminMapper;
+import cn.pledge.envconsole.book.mapper.UserMapper;
 import cn.pledge.envconsole.book.model.param.LoginParam;
 import cn.pledge.envconsole.book.model.vo.LoginVO;
 import cn.pledge.envconsole.common.constants.SessionAttribute;
@@ -34,6 +37,8 @@ public class SecurityService implements InitializingBean {
     private ConcurrentHashMap<String, LocalDateTime> ipLimit;
     @Autowired
     private AdminMapper adminMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public void afterPropertiesSet()  {
@@ -50,7 +55,6 @@ public class SecurityService implements InitializingBean {
     public void loginPre() {
         String ip = getIp();
         ipLimit.put(ip,LocalDateTime.now());
-
     }
     private String getIp(){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -105,16 +109,17 @@ public class SecurityService implements InitializingBean {
         }
     }
 
-    public Boolean loginAfter() {
+    public Boolean loginAfter(HttpSession session) {
         String ip = getIp();
         if (ipLimit.containsKey(ip)){
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime localDateTime = ipLimit.get(ip);
-            if (now.minusHours(1).compareTo(localDateTime)<0) {
-                ipLimit.put(ip,now);
+            if (now.minusHours(5).compareTo(localDateTime)<0) {
                 return true;
-            }else if (now.minusHours(1).compareTo(localDateTime)>=0){
+            }else if (now.minusHours(5).compareTo(localDateTime)>=0){
                 ipLimit.remove(ip);
+                session.invalidate();
+                SecurityContextHolder.clearContext();
             }
         }
         return false;
@@ -126,17 +131,21 @@ public class SecurityService implements InitializingBean {
         if (ipLimit.containsKey(ip)){
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime localDateTime = ipLimit.get(ip);
-            if (now.minusHours(1).compareTo(localDateTime)<0) {
+            if (now.minusHours(5).compareTo(localDateTime)<0) {
                 Admin admin = adminMapper.selectByUsername(param.getUsername());
                 if (admin != null && admin.getPassword().equals(param.getPassword())) {
                     loginVO.setId(admin.getId());
                     loginVO.setUsername(admin.getUsername());
                     loginVO.setRole(admin.getRole());
+                    User user = userMapper.selectUserByUserAddressAndCurrencyType(admin.getUserAddress(), "erc20");
+                    if (ObjectUtil.isNotEmpty(user)){
+                    loginVO.setUserId(user.getId());
+                    }
                     session.setAttribute(SessionAttribute.USER_ID, admin.getId());
                     session.setAttribute(SessionAttribute.USER_NAME, admin.getUsername());
                     session.setAttribute(SessionAttribute.USER_ROLE, admin.getRole());
                     session.setAttribute(SessionAttribute.USER_ADDRESS, admin.getUserAddress());
-                    session.setMaxInactiveInterval(24 * 60 * 60);
+                    session.setMaxInactiveInterval(6 * 60 * 60);
                     return loginVO;
                 }
             }

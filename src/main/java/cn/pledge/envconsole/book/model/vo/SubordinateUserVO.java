@@ -30,5 +30,7 @@ public class SubordinateUserVO {
     private Boolean isConfigureExperienceFee;
     @ApiModelProperty("备注")
     private String remark;
+    @ApiModelProperty("币类型")
+    private String currencyType;
 
 }

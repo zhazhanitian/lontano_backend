@@ -1,7 +1,13 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.Statistics;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Mapper
 public interface StatisticsMapper {
@@ -55,4 +61,12 @@ public interface StatisticsMapper {
 
     @Select("select * from statistics where user_id = #{id} ")
     Statistics selectOneByUserId(Integer id);
+    @Update("truncate table statistics")
+    void delAll();
+
+    Double selectPledgeAmount(@Param("userIds")List<Integer> userIds);
+
+    Double selectPledgeAmountByUserIdsAndDate(@Param("userIds")List<Integer> userIds);
+
+    void deleteByUserId(Integer userId);
 }

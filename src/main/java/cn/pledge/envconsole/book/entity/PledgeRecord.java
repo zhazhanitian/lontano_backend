@@ -1,7 +1,5 @@
 package cn.pledge.envconsole.book.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -19,7 +17,6 @@ public class PledgeRecord implements Serializable {
      * id
      */
     @ApiModelProperty(value = "id")
-    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -93,6 +90,12 @@ public class PledgeRecord implements Serializable {
      */
     @ApiModelProperty(value = "收益")
     private Double income;
+
+    /**
+     * 是否为虚拟记录
+     */
+    @ApiModelProperty(value = "是否为虚拟记录 true 为虚拟 false 为真实")
+    private Boolean isVirtual;
 
     private static final long serialVersionUID = 1L;
 }

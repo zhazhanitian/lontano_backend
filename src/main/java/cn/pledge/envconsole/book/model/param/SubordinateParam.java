@@ -10,6 +10,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class SubordinateParam extends PageReq{
-    @ApiModelProperty("用户地址")
-    private String userAddress;
+    @ApiModelProperty("用户id")
+    private String userId;
 }

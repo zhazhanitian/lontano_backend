@@ -19,4 +19,9 @@ public class AddAgencyAdminParam implements Serializable {
     @ApiModelProperty("密码")
     private String password;
     private String remark;
+    @ApiModelProperty("角色 agency - 代理； employee - 业务员")
+    private String role;
+    @ApiModelProperty("添加业务员的代理id")
+    private Integer parentId;
+
 }

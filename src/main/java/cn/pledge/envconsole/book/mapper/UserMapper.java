@@ -1,7 +1,11 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.User;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;import java.util.List;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -53,24 +57,37 @@ public interface UserMapper {
      */
     int updateByPrimaryKey(User record);
 
-    /**
-     * 通过注册接口查询是否已经有该用户
-     *
-     * @param registerUserAddress
-     * @return User
-     */
+
     @Select("select * from user where user_address = #{registerUserAddress} ")
-    User selectUserByUserAddress(String registerUserAddress);
+    List<User> selectUserByUserAddress(String registerUserAddress);
 
     @Select("select count(1) from user where superior_id = #{superiorId}")
     Integer subordinateNum(Integer superiorId);
 
-    List<User> subordinateList(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId);
+    List<User> subordinateList(@Param("page") Integer page, @Param("size") Integer size, @Param("userId") Integer userId);
 
-    List<Integer> userList(@Param("page") int page, @Param("size") int size, @Param("userId") Integer userId, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    List<Integer> userList(@Param("page") Integer page, @Param("size") Integer size, @Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress,@Param("hasFlow") Boolean hasFlow);
 
-    Integer userListTotal(@Param("userId") Integer userId, @Param("remark") String remark, @Param("userAddress") String userAddress);
+    Integer userListTotal(@Param("userIds") List<Integer> userIds, @Param("remark") String remark, @Param("userAddress") String userAddress,@Param("hasFlow") Boolean hasFlow);
+
+    List<Integer> selectAllByRootId(@Param("rootIds") List<Integer> userIds);
+    @Select("select * from user where user_address = #{registerUserAddress} and currency_type = #{currencyType}")
+    User selectUserByUserAddressAndCurrencyType(@Param("registerUserAddress")String registerUserAddress, @Param("currencyType")String currencyType);
 
 
-    List<Integer> selectAllByRootId(@Param("rootId")Integer id);
+    Integer selectNumByUserIds(@Param("userIds")List<Integer> userIds);
+
+    Integer selectTodayNumByUserIds(@Param("userIds")List<Integer> userIds);
+
+    List<User> selectUserByUserIdsAndDate(@Param("userIds")List<Integer> userIds, @Param("localDate")LocalDate localDate, @Param("plusDays")LocalDate plusDays);
+    @Select("select id from user where user_address = #{userAddress} ")
+
+    Integer selectOneUserByUserAddress(String userAddress);
+
+    @Select("select id from user where root_id = #{userIdFromAdmin} ")
+    List<Integer> selectUserIdByRootId(Integer userIdFromAdmin);
+
+    void updateByPid(Integer userId);
+
+    void updateByRootId(Integer userId);
 }

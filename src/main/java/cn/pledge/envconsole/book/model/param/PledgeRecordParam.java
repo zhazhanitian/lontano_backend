@@ -10,8 +10,8 @@ import lombok.ToString;
 @Data
 @ToString
 public class PledgeRecordParam extends PageReq{
-    @ApiModelProperty("用户地址")
-    private String userAddress;
+    @ApiModelProperty("用户id")
+    private Integer userId;
     @ApiModelProperty("质押hash")
     private String pledgeHash;
 }

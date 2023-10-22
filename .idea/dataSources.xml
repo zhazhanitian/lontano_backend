@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="pledge@rm-bp1wi82pcnyn4wb3rbo.mysql.rds.aliyuncs.com" uuid="58372fd5-be03-4ca9-b0a6-25f657d50777">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://rm-bp1wi82pcnyn4wb3rbo.mysql.rds.aliyuncs.com:3306/pledge?useUnicode=true&amp;characterEncoding=UTF-8&amp;tinyInt1isBit=false&amp;serverTimezone=Asia/Shanghai</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="pledge@154.23.188.103" uuid="e3418c7c-e3b2-470d-88ef-177ce338f40f">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://154.23.188.103:3306/pledge</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>

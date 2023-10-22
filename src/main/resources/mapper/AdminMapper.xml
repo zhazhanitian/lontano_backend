@@ -11,10 +11,11 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="user_address" jdbcType="VARCHAR" property="userAddress" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    id, username, `password`, `role`, create_time, user_address, remark
+    id, username, `password`, `role`, create_time, user_address, remark, parent_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -28,22 +29,19 @@
     delete from `admin`
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="cn.pledge.envconsole.book.entity.Admin">
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Admin" useGeneratedKeys="true">
     <!--@mbg.generated-->
-    insert into `admin` (id, username, `password`, 
-      `role`, create_time, user_address, 
-      remark)
-    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
-      #{role,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{userAddress,jdbcType=VARCHAR}, 
-      #{remark,jdbcType=VARCHAR})
+    insert into `admin` (username, `password`, `role`, 
+      create_time, user_address, remark, 
+      parent_id)
+    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{role,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{userAddress,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="cn.pledge.envconsole.book.entity.Admin">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Admin" useGeneratedKeys="true">
     <!--@mbg.generated-->
     insert into `admin`
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="username != null">
         username,
       </if>
@@ -62,11 +60,11 @@
       <if test="remark != null">
         remark,
       </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
       <if test="username != null">
         #{username,jdbcType=VARCHAR},
       </if>
@@ -84,6 +82,9 @@
       </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -109,6 +110,9 @@
       <if test="remark != null">
         remark = #{remark,jdbcType=VARCHAR},
       </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -120,16 +124,17 @@
       `role` = #{role,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       user_address = #{userAddress,jdbcType=VARCHAR},
-      remark = #{remark,jdbcType=VARCHAR}
+      remark = #{remark,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="agencyAdminList" resultType="cn.pledge.envconsole.book.entity.Admin">
   select * from admin
   where role = 'agency'
-  <if test="remark != null">
+  <if test="remark != null and remark != ''">
      and  remark like CONCAT('%', #{remark}, '%')
   </if>
-  <if test="userAddress != null">
+  <if test="userAddress != null and userAddress !=''">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
   order by id desc
@@ -138,12 +143,45 @@
  <select id="agencyAdminTotal" resultType="java.lang.Integer">
   select count(1) from admin
   where role = 'agency'
-  <if test="remark != null">
+  <if test="remark != null and remark != ''">
      and  remark like CONCAT('%', #{remark}, '%')
   </if>
-  <if test="userAddress != null">
+  <if test="userAddress != null and userAddress !=''">
      and  user_address like CONCAT('%', #{userAddress}, '%')
   </if>
 
 </select>
+
+  <select id="employeeAdminList" resultMap="BaseResultMap">
+    select * from admin
+    where role = 'employee'
+    <if test="parentId != null">
+      and parent_id = #{parentId}
+    </if>
+    <if test="remark != null and remark != ''">
+      and  remark like CONCAT('%', #{remark}, '%')
+    </if>
+    <if test="userAddress != null and userAddress !=''">
+      and  user_address like CONCAT('%', #{userAddress}, '%')
+    </if>
+    order by id desc
+    limit #{page},#{size}
+  </select>
+
+  <select id="employeeAdminTotal" resultType="java.lang.Integer">
+    select count(1) from admin
+    where role = 'employee'
+    <if test="parentId != null">
+      and parent_id = #{parentId}
+    </if>
+    <if test="remark != null and remark != ''">
+      and  remark like CONCAT('%', #{remark}, '%')
+    </if>
+    <if test="userAddress != null and userAddress !=''">
+      and  user_address like CONCAT('%', #{userAddress}, '%')
+    </if>
+
+  </select>
+
+
 </mapper>

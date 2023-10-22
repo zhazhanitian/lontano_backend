@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pledge.envconsole.book.mapper.TransferMapper">
+  <resultMap id="BaseResultMap" type="cn.pledge.envconsole.book.entity.Transfer">
+    <!--@mbg.generated-->
+    <!--@Table transfer-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="admin_id" jdbcType="INTEGER" property="adminId" />
+    <result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
+    <result column="amount" jdbcType="DOUBLE" property="amount" />
+    <result column="hash" jdbcType="VARCHAR" property="hash" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="is_auto" jdbcType="INTEGER" property="isAuto" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_id, admin_id, currency_type, amount, hash, create_time, is_auto
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from transfer
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from transfer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Transfer" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into transfer (user_id, admin_id, currency_type, 
+      amount, hash, create_time, 
+      is_auto)
+    values (#{userId,jdbcType=INTEGER}, #{adminId,jdbcType=INTEGER}, #{currencyType,jdbcType=VARCHAR}, 
+      #{amount,jdbcType=DOUBLE}, #{hash,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{isAuto,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Transfer" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into transfer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="adminId != null">
+        admin_id,
+      </if>
+      <if test="currencyType != null">
+        currency_type,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="hash != null">
+        hash,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="isAuto != null">
+        is_auto,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="adminId != null">
+        #{adminId,jdbcType=INTEGER},
+      </if>
+      <if test="currencyType != null">
+        #{currencyType,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="hash != null">
+        #{hash,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isAuto != null">
+        #{isAuto,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.pledge.envconsole.book.entity.Transfer">
+    <!--@mbg.generated-->
+    update transfer
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="adminId != null">
+        admin_id = #{adminId,jdbcType=INTEGER},
+      </if>
+      <if test="currencyType != null">
+        currency_type = #{currencyType,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="hash != null">
+        hash = #{hash,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isAuto != null">
+        is_auto = #{isAuto,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.pledge.envconsole.book.entity.Transfer">
+    <!--@mbg.generated-->
+    update transfer
+    set user_id = #{userId,jdbcType=INTEGER},
+      admin_id = #{adminId,jdbcType=INTEGER},
+      currency_type = #{currencyType,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=DOUBLE},
+      hash = #{hash,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      is_auto = #{isAuto,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectTransferAmount" resultType="java.lang.Double">
+    select sum(amount) from  transfer
+    <if test="userIds != null">
+      where user_id in
+      <foreach close=")" collection="userIds" item="id" open="(" separator=",">
+        #{id}
+      </foreach>
+    </if>
+    </select>
+
+  <select id="selectListByUserId" resultMap="BaseResultMap">
+    select * from transfer where is_auto = #{isAuto} and user_id = #{id}
+    <if test="hash != null">
+      and hash like CONCAT('%', #{hash}, '%')
+    </if>
+    order by id
+    limit #{page},#{size}
+  </select>
+
+  <select id="selectListTotalByUserId" resultType="java.lang.Long">
+    select count(1) from transfer where is_auto = #{isAuto} and user_id = #{id}
+    <if test="hash != null">
+      and hash like CONCAT('%', #{hash}, '%')
+    </if>
+  </select>
+
+  <delete id="deleteByUserId">
+    delete from pledge.transfer where pledge.transfer.user_id = #{userId}
+    </delete>
+</mapper>

@@ -23,6 +23,19 @@ public class PledgeGlobalConfigurationVO {
     private String systemMessage;
     @ApiModelProperty("系统消息是否开启")
     private Boolean isNotice;
+    /**
+     * 空投开关
+     */
+    @ApiModelProperty(value = "空投开关")
+    private Boolean isAirdrop;
+
+    @ApiModelProperty(value = "转化汇率")
+    private Double rate;
+    /**
+     * 域名
+     */
+    @ApiModelProperty(value = "域名")
+    private String domain;
     @ApiModelProperty("参与流动挖矿的余额范围及相应的收益率")
     private List<FlowMining> flowMiningList;
     @ApiModelProperty("周期对应的利率列表")

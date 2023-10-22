@@ -1,5 +1,6 @@
 package cn.pledge.envconsole.book.model.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.ToString;
 
@@ -9,7 +10,9 @@ import lombok.ToString;
 @Data
 @ToString
 public class ExperienceGoldRecordParam extends PageReq{
-    private String userAddress;
-    private String remark;
+
+    @ApiModelProperty(value = "用户地址",required = true)
+    private Integer userId;
+
 
 }

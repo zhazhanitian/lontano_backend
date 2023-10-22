@@ -39,10 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/v1/security/ipRemove",
                         "/api/v1/security/loginAfter",
                         "/api/v1/user/register",
-                        "/favicon.ico",
                         "swagger-resources",
-                        "/v2/api-docs",
-                        "/v3/api-docs",
                         "/doc.html"
                 ).permitAll()
                 .anyRequest().authenticated()
@@ -63,17 +60,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().headers().cacheControl();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(false);
-        configuration.addAllowedOrigin(CorsConfiguration.ALL);
-        configuration.addAllowedHeader(CorsConfiguration.ALL);
-        configuration.addAllowedMethod(CorsConfiguration.ALL);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowCredentials(false);
+//        configuration.addAllowedOrigin(CorsConfiguration.ALL);
+//        configuration.addAllowedHeader(CorsConfiguration.ALL);
+//        configuration.addAllowedMethod(CorsConfiguration.ALL);
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+
 
 
     @Bean

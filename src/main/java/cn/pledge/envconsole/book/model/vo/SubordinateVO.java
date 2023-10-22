@@ -14,6 +14,8 @@ public class SubordinateVO {
     private String userAddress;
     @ApiModelProperty("下级代理入驻时间")
     private Long CreateTime;
+    @ApiModelProperty("币类型")
+    private String currencyType;
 //    @ApiModelProperty("是否配置体验金")
 //    private Boolean isConfigureExperienceFee;
 }

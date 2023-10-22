@@ -1,7 +1,10 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.WithdrawRecord;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import java.util.List;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface WithdrawRecordMapper {
@@ -57,6 +60,12 @@ public interface WithdrawRecordMapper {
 
     Integer withdrawRecordTotal(@Param("userId") Integer userId, @Param("remark") String remark, @Param("playHash") String playHash);
 
-    List<WithdrawRecord> manageSelectWithdrawRecordList(@Param("page") int page, @Param("size") int size, @Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash,@Param("userAddress")String userAddress);
-    Integer manageWithdrawRecordTotal(@Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash,@Param("userAddress")String userAddress);
+    List<WithdrawRecord> manageSelectWithdrawRecordList(@Param("page") int page, @Param("size") int size, @Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash, @Param("userAddress") String userAddress);
+
+    Integer manageWithdrawRecordTotal(@Param("ids") List<Integer> userList, @Param("remark") String remark, @Param("playHash") String playHash, @Param("userAddress") String userAddress);
+    @Update("truncate table withdraw_record")
+    void dellAll();
+
+    void deleteByUserId(Integer userId);
+
 }

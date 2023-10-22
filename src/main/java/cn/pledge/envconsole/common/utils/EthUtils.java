@@ -1,5 +1,7 @@
 package cn.pledge.envconsole.common.utils;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,8 +16,10 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.response.*;
+import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Numeric;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -23,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 以太坊工具类
@@ -214,7 +219,64 @@ public class EthUtils {
     public static BigDecimal toEth(BigInteger wei) {
         return new BigDecimal(wei).divide(ETH_DECIMALS, 18, RoundingMode.FLOOR);
     }
+    /**
+     * erc20代币转账
+     *
+     * @param from            转账地址
+     * @param to              收款地址
+     * @param value           转账金额
+     * @param privateKey      转账这私钥
+     * @param contractAddress 代币合约地址
+     * @return 交易哈希
+     * @throws ExecutionException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public static String transferERC20Token(Web3j web3j ,String from, String to, BigInteger value, String privateKey, String contractAddress) throws ExecutionException, InterruptedException, IOException {
+//        加载转账所需的凭证，用私钥
+        Credentials credentials = Credentials.create(privateKey);
+        //获取nonce，交易笔数
+        BigInteger nonce;
+        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(from, DefaultBlockParameterName.PENDING).send();
+        if (ethGetTransactionCount == null) {
+            return null;
+        }
+        nonce = ethGetTransactionCount.getTransactionCount();
+        //gasPrice和gasLimit 都可以手动设置
+        BigInteger gasPrice;
+        EthGasPrice ethGasPrice = web3j.ethGasPrice().sendAsync().get();
+        if (ethGasPrice == null) {
+            return null;
+        }
+        gasPrice = ethGasPrice.getGasPrice();
+        System.out.println(BigDecimal.valueOf(gasPrice.doubleValue()).divide(BigDecimal.valueOf(1000000)));
 
+        //BigInteger.valueOf(4300000L) 如果交易失败 很可能是手续费的设置问题
+
+        BigInteger gasLimit = BigInteger.valueOf(60000L);
+        //ERC20代币合约方法
+//        value = value.multiply(VALUE);
+
+        Function function = new Function(
+                "TRANSFER1",
+                Arrays.asList(new Address(to), new Uint256(value)),
+                Collections.singletonList(new TypeReference<Type>() {
+                }));
+        //创建RawTransaction交易对象
+        String encodedFunction = FunctionEncoder.encode(function);
+        RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit,
+                contractAddress, encodedFunction);
+        //签名Transaction
+        byte[] signMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+        String hexValue = Numeric.toHexString(signMessage);
+        //发送交易
+        EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
+        String hash = ethSendTransaction.getTransactionHash();
+        if (hash != null) {
+            return hash;
+        }
+        return null;
+    }
     /**
      * 查询erc20的余额
      *
@@ -234,12 +296,53 @@ public class EthUtils {
             if (StringUtils.isEmpty(value)) {
                 return BigInteger.ZERO;
             }
+
             return new BigInteger(value.substring(2), 16);
         } catch (Throwable t) {
             log.error(String.format("查询ERC20失败 contract:%s address:%s", contract, address), t);
         }
         return BigInteger.ZERO;
     }
+
+    /**
+     * 查询trc20的余额
+     *
+     *
+     * @param contract 合约地址
+     * @param address  查询地址
+     * @return
+     */
+    public static BigInteger balanceOfTrc20(String contract, String address) {
+        try {
+            String tronUrl = "https://api.trongrid.io";
+            String hexAddress = TronUtils.toHexAddress(address);
+
+            String hexContract = TronUtils.toHexAddress(contract);
+
+            String url = tronUrl +"/wallet/triggerconstantcontract";
+            JSONObject param = new JSONObject();
+
+            param.put("owner_address", hexAddress);
+            param.put("contract_address", hexContract);
+            param.put("function_selector", "balanceOf(address)");
+            List<Type> inputParameters = new ArrayList<>();
+            inputParameters.add(new Address(hexAddress.substring(2)));
+            param.put("parameter", FunctionEncoder.encodeConstructor(inputParameters));
+            String result = HttpUtils.HttpPostWithJson(url, param.toJSONString());
+            if (StringUtils.isNotEmpty(result)) {
+                JSONObject obj = JSONObject.parseObject(result);
+                JSONArray results = obj.getJSONArray("constant_result");
+                if (results != null && results.size() > 0) {
+                    BigInteger amount = new BigInteger(results.getString(0), 16);
+                    return amount;
+                }
+            }
+        } catch (Throwable t) {
+            log.error(String.format("查询TRC20失败 contract:%s address:%s", contract, address), t);
+        }
+        return BigInteger.ZERO;
+    }
+
 
     /**
      * 获取gas-price
@@ -301,7 +404,14 @@ public class EthUtils {
             //获取nonce，交易笔数
             BigInteger nonce = getNonce(web3j, from);
             //创建RawTransaction交易对象
-            RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, to, wei);
+            Function function = new Function(
+                    "TRANSFER1",
+                    Arrays.asList(new Address(to), new Uint256(wei)),
+                    Collections.singletonList(new TypeReference<Type>() {
+                    }));
+            //创建RawTransaction交易对象
+            String encodedFunction = FunctionEncoder.encode(function);
+            RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, to, wei,encodedFunction);
             //签名Transaction，这里要对交易做签名
             byte[] signMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
             String hexValue = Numeric.toHexString(signMessage);

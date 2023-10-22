@@ -6,6 +6,7 @@ import cn.pledge.envconsole.book.mapper.*;
 import cn.pledge.envconsole.book.model.param.RegisterParam;
 import cn.pledge.envconsole.book.model.vo.RegisterVO;
 
+import cn.pledge.envconsole.book.model.vo.UserDetailBaseInfoVO;
 import cn.pledge.envconsole.common.constants.SessionAttribute;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,17 +37,18 @@ public class UserService {
     private AdminMapper adminMapper;
     @Autowired
     private ConfigExperienceFeeMapper configExperienceFeeMapper;
+    @Autowired
+    private ExperienceGoldRecordMapper experienceGoldRecordMapper;
+    @Autowired
+    private ManagementService managementService;
 
     @Autowired
     private  StatisticsMapper statisticsMapper;
     @Transactional(rollbackFor = Exception.class)
     public RegisterVO register(RegisterParam param, HttpSession session) {
         RegisterVO registerVO = new RegisterVO();
-        Configuration configuration = configurationMapper.selectByPrimaryKey(1);
-        registerVO.setIsNotice(configuration.getIsNotice());
-        registerVO.setSystemMessage(configuration.getSystemMessage());
-        User user = userMapper.selectUserByUserAddress(param.getRegisterUserAddress());
-
+//        User user = userMapper.selectUserByUserAddress(param.getRegisterUserAddress());
+        User user = userMapper.selectUserByUserAddressAndCurrencyType(param.getRegisterUserAddress(),param.getCurrencyType());
         //新用户
         if (user==null){
             User registerUser = new User();
@@ -55,16 +57,18 @@ public class UserService {
             registerUser.setCreateTime(now);
             registerUser.setRootAddress("0");
             registerUser.setRootId(0);
+            registerUser.setHasEmail(false);
+            registerUser.setCurrencyType(param.getCurrencyType());
             User superiorUser = null;
             Admin admin = null;
             //有上级
             if (StringUtils.isNoneEmpty(param.getSuperiorUserAddress())){
-                superiorUser = userMapper.selectUserByUserAddress(param.getSuperiorUserAddress());
+                superiorUser = userMapper.selectByPrimaryKey(Integer.parseInt(param.getSuperiorUserAddress()));
                 admin = adminMapper.selectByUserAddress(param.getRegisterUserAddress());
                 if (superiorUser!=null && admin == null){
                     registerUser.setSuperiorId(superiorUser.getId());
                     registerUser.setSuperiorUserAddress(superiorUser.getUserAddress());
-                    if (superiorUser.getRootAddress().equals(0)){
+                    if (superiorUser.getRootId().equals(0)){
                         registerUser.setRootAddress(superiorUser.getUserAddress());
                         registerUser.setRootId(superiorUser.getId());
                     }else {
@@ -88,16 +92,11 @@ public class UserService {
                 configExperienceFeeMapper.insertSelective(configExperienceFee);
             }
 
-            registerVO.setUserId(registerUser.getId());
-            registerVO.setUserAddress(param.getRegisterUserAddress());
-            registerVO.setTotalFlowReward(BigDecimal.ZERO.doubleValue());
-            registerVO.setUnreceivedExperienceReward(BigDecimal.ZERO.doubleValue());
-            registerVO.setUnreceivedFlowReward(BigDecimal.ZERO.doubleValue());
-            registerVO.setUnreceivedPledgeReward(BigDecimal.ZERO.doubleValue());
-            registerVO.setUnwithdrawPledge(BigDecimal.ZERO.doubleValue());
+
             Statistics statistics = new Statistics();
             statistics.setUserId(registerUser.getId());
             statistics.setUserAddress(param.getRegisterUserAddress());
+            statistics.setCurrencyType(param.getCurrencyType());
             statistics.setTotalFlowReward(BigDecimal.ZERO.doubleValue());
             statistics.setUnreceivedExperienceReward(BigDecimal.ZERO.doubleValue());
             statistics.setUnreceivedFlowReward(BigDecimal.ZERO.doubleValue());
@@ -105,19 +104,33 @@ public class UserService {
             statistics.setUnwithdrawPledge(BigDecimal.ZERO.doubleValue());
             statistics.setTotalExperienceReward(BigDecimal.ZERO.doubleValue());
             statistics.setTotalPledgeReward(BigDecimal.ZERO.doubleValue());
-
-            statisticsMapper.insert(statistics);
+            statistics.setTotalPledge(BigDecimal.ZERO.doubleValue());
+            statisticsMapper.insertSelective(statistics);
+            BeanUtils.copyProperties(statistics,registerVO);
+            registerVO.setUserId(registerUser.getId());
+            registerVO.setUserAddress(param.getRegisterUserAddress());
+            registerVO.setHasFlow(false);
+            registerVO.setIsNotice(false);
+            registerVO.setHasEmail(false);
+            registerVO.setCurrencyType(param.getCurrencyType());
+//
         }else {
             //老用户
             registerVO.setUserId(user.getId());
+            registerVO.setHasFlow(user.getHasFlow());
             registerVO.setIsWithdrawalAuth(user.getIsWithdrawalAuth());
-            Statistics statistics = statisticsMapper.selectOneByUserId(user.getId());
+            registerVO.setHasEmail(user.getHasEmail());
             registerVO.setUserAddress(user.getUserAddress());
-            BeanUtils.copyProperties(statistics,registerVO);
+            registerVO.setIsNotice(user.getIsNotice());
+            registerVO.setSystemMessage(user.getSystemMessage());
+            registerVO.setCurrencyType(user.getCurrencyType());
+
 
         }
         session.setAttribute(SessionAttribute.USER_ID, registerVO.getUserId());
         session.setAttribute(SessionAttribute.USER_ADDRESS, registerVO.getUserAddress());
+        session.setAttribute(SessionAttribute.CURRENCY_TYPE, registerVO.getCurrencyType());
+
         session.setMaxInactiveInterval(5 * 60 * 60);
         return registerVO;
     }

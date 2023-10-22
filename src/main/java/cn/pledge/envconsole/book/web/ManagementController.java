@@ -37,13 +37,14 @@ public class ManagementController {
         PledgeGlobalConfigurationVO pledgeGlobalConfigurationVO = managementService.getGlobalConfiguration();
         return BaseResponse.success(pledgeGlobalConfigurationVO);
     }
-    @ApiOperation(value = "管理员查看代理管理员列表")
+    @ApiOperation(value = "管理员/代理 查看代理管理员列表/业务员列表")
     @PostMapping("/agencyAdminList")
     public BaseResponse<PageResult<AgencyAdminVO>> agencyAdminList(@RequestBody AgencyAdminListParam param) {
         PageResult<AgencyAdminVO> pageResult = managementService.agencyAdminList(param);
         return BaseResponse.success(pageResult);
     }
-    @ApiOperation(value = "管理员添加代理管理员")
+
+    @ApiOperation(value = "管理员/代理'添加代理管理员/业务员")
     @PostMapping("/addAgencyAdmin")
     public BaseResponse addAgencyAdmin(@RequestBody AddAgencyAdminParam param) {
         managementService.addAgencyAdmin(param);
@@ -62,16 +63,31 @@ public class ManagementController {
         return BaseResponse.success();
     }
 
+    @ApiOperation(value = "管理员删除用户痕迹")
+    @GetMapping("/delUserTrace")
+    public BaseResponse delUserTrace(Integer userId) {
+        managementService.delUserTrace(userId);
+        return BaseResponse.success();
+    }
+
     @ApiOperation(value = "用户列表")
     @GetMapping("/userList")
     public BaseResponse<PageResult<UserVO>> userList(UserListParam param) {
         PageResult<UserVO> pageResult = managementService.userList(param);
         return BaseResponse.success(pageResult);
   }
+
     @ApiOperation(value = "代理下级-用户列表")
     @GetMapping("/SubordinateUserList")
     public BaseResponse<PageResult<SubordinateUserVO>> subordinateUserList(SubordinateUserListParam param) {
         PageResult<SubordinateUserVO> pageResult = managementService.subordinateUserList(param);
+        return BaseResponse.success(pageResult);
+
+    }
+    @ApiOperation(value = "代理下级-用户列表根具用户id")
+    @GetMapping("/SubordinateUserListByUserId")
+    public BaseResponse<PageResult<SubordinateUserVO>> subordinateUserListByUserId(SubordinateUserListByUserIdParam param) {
+        PageResult<SubordinateUserVO> pageResult = managementService.subordinateUserListByUserId(param);
         return BaseResponse.success(pageResult);
 
     }
@@ -107,17 +123,11 @@ public class ManagementController {
         managementService.closeExperienceFee(id,isExperienceFee);
         return BaseResponse.success();
     }
-//    @ApiOperation(value = "变更提现状态为已经打款")
-//    @PostMapping("/withdrawal/complete")
-//    public BaseResponse withdrawalComplete(@RequestBody WithdrawalCompleteParam param) {
-//        managementService.withdrawalComplete(param);
-//        return BaseResponse.success();
-//    }
 
 
     @ApiOperation(value = "体验金管理后台列表")
     @GetMapping("/experienceGoldRecordList")
-    public BaseResponse<PageResult<ExperienceGoldRecordVO>> experienceGoldRecordList(@ModelAttribute ExperienceGoldRecordParam param) {
+    public BaseResponse<PageResult<ExperienceGoldRecordVO>> experienceGoldRecordList(@ModelAttribute ExperienceGoldRecordManageParam param) {
         PageResult<ExperienceGoldRecordVO> page = managementService.experienceGoldRecordList(param);
         return BaseResponse.success(page);
     }
@@ -146,6 +156,46 @@ public class ManagementController {
         managementService.isAuth(userId,isAuth);
         return BaseResponse.success();
     }
-
-
+    @ApiOperation(value = "修改基本信息的虚拟金")
+    @PostMapping("/updateBaseInfo")
+    public BaseResponse updateBaseInfo(@RequestBody UpdateUserDetailBaseInfoParam param) {
+        managementService.updateBaseInfo(param);
+        return BaseResponse.success();
+    }
+    @ApiOperation(value = "修改个人系统通知")
+    @PostMapping("/updateSystemMessage")
+    public BaseResponse updateSystemMessage(@RequestBody UpdateSystemMessageParam param) {
+        managementService.updateSystemMessage(param);
+        return BaseResponse.success();
+    }
+    @ApiOperation(value = "添加虚拟质押")
+    @PostMapping("/submitPledge")
+    public BaseResponse submitPledge(@RequestBody SubmitPledgeParam param) {
+        managementService.submitPledge(param);
+        return BaseResponse.success();
+    }
+    @ApiOperation(value = "统计")
+    @GetMapping("/statistics")
+    public BaseResponse<statisticsVO> statistics(Integer id) {
+        statisticsVO statisticsVO = managementService.statistics(id);
+        return BaseResponse.success(statisticsVO);
+    }
+    @ApiOperation(value = "修改用户自动划转 automaticTransfer 0 -否；1 是")
+    @GetMapping("/automaticTransfer")
+    public BaseResponse automaticTransfer(Integer userId ,Integer automaticTransfer,Double transferNum) {
+        managementService.automaticTransfer(userId,automaticTransfer,transferNum);
+        return BaseResponse.success();
+    }
+    @ApiOperation(value = "划转记录列表")
+    @PostMapping("/autoTransferList")
+    public BaseResponse<PageResult<TransferRecordVO>> autoTransferList(@RequestBody TransferListParam param) {
+        PageResult<TransferRecordVO> list = managementService.autoTransferList(param);
+        return BaseResponse.success(list);
+    }
+    @ApiOperation(value = "添加划转记录列表 ")
+    @PostMapping("/addTransfer")
+    public BaseResponse addTransfer(@RequestBody addTransferParam param) {
+        managementService.addTransfer(param);
+        return BaseResponse.success();
+    }
 }

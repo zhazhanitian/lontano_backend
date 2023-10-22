@@ -236,6 +236,14 @@
 
 </select>
 
+<select id="selectTotalExperienceGoldByUserId" resultType="java.lang.Double">
+  select sum(amount) from experience_gold_record
 
+  where user_id = #{id} and experience_time >0
 
+</select>
+
+  <delete id="deleteByUserId">
+    delete from experience_gold_record where user_id = #{userId}
+    </delete>
 </mapper>

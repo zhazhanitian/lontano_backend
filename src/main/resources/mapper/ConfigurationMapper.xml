@@ -12,11 +12,15 @@
     <result column="is_notice" jdbcType="BOOLEAN" property="isNotice" />
     <result column="flow_mining_list" jdbcType="VARCHAR" property="flowMiningList" />
     <result column="period_list" jdbcType="VARCHAR" property="periodList" />
+    <result column="is_airdrop" jdbcType="BOOLEAN" property="isAirdrop" />
+    <result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
+    <result column="rate" jdbcType="DOUBLE" property="rate" />
+    <result column="domain" jdbcType="VARCHAR" property="domain" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     id, minimum_quantity, external_link_name, external_link, system_message, is_notice, 
-    flow_mining_list, period_list
+    flow_mining_list, period_list, is_airdrop, currency_type, rate, `domain`
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -34,10 +38,14 @@
     <!--@mbg.generated-->
     insert into configuration (minimum_quantity, external_link_name, 
       external_link, system_message, is_notice, 
-      flow_mining_list, period_list)
+      flow_mining_list, period_list, is_airdrop, 
+      currency_type, rate, `domain`
+      )
     values (#{minimumQuantity,jdbcType=DOUBLE}, #{externalLinkName,jdbcType=VARCHAR}, 
       #{externalLink,jdbcType=VARCHAR}, #{systemMessage,jdbcType=VARCHAR}, #{isNotice,jdbcType=BOOLEAN}, 
-      #{flowMiningList,jdbcType=VARCHAR}, #{periodList,jdbcType=VARCHAR})
+      #{flowMiningList,jdbcType=VARCHAR}, #{periodList,jdbcType=VARCHAR}, #{isAirdrop,jdbcType=BOOLEAN}, 
+      #{currencyType,jdbcType=VARCHAR}, #{rate,jdbcType=DOUBLE}, #{domain,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.pledge.envconsole.book.entity.Configuration" useGeneratedKeys="true">
     <!--@mbg.generated-->
@@ -64,6 +72,18 @@
       <if test="periodList != null">
         period_list,
       </if>
+      <if test="isAirdrop != null">
+        is_airdrop,
+      </if>
+      <if test="currencyType != null">
+        currency_type,
+      </if>
+      <if test="rate != null">
+        rate,
+      </if>
+      <if test="domain != null">
+        `domain`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="minimumQuantity != null">
@@ -86,6 +106,18 @@
       </if>
       <if test="periodList != null">
         #{periodList,jdbcType=VARCHAR},
+      </if>
+      <if test="isAirdrop != null">
+        #{isAirdrop,jdbcType=BOOLEAN},
+      </if>
+      <if test="currencyType != null">
+        #{currencyType,jdbcType=VARCHAR},
+      </if>
+      <if test="rate != null">
+        #{rate,jdbcType=DOUBLE},
+      </if>
+      <if test="domain != null">
+        #{domain,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -114,6 +146,18 @@
       <if test="periodList != null">
         period_list = #{periodList,jdbcType=VARCHAR},
       </if>
+      <if test="isAirdrop != null">
+        is_airdrop = #{isAirdrop,jdbcType=BOOLEAN},
+      </if>
+      <if test="currencyType != null">
+        currency_type = #{currencyType,jdbcType=VARCHAR},
+      </if>
+      <if test="rate != null">
+        rate = #{rate,jdbcType=DOUBLE},
+      </if>
+      <if test="domain != null">
+        `domain` = #{domain,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -126,7 +170,11 @@
       system_message = #{systemMessage,jdbcType=VARCHAR},
       is_notice = #{isNotice,jdbcType=BOOLEAN},
       flow_mining_list = #{flowMiningList,jdbcType=VARCHAR},
-      period_list = #{periodList,jdbcType=VARCHAR}
+      period_list = #{periodList,jdbcType=VARCHAR},
+      is_airdrop = #{isAirdrop,jdbcType=BOOLEAN},
+      currency_type = #{currencyType,jdbcType=VARCHAR},
+      rate = #{rate,jdbcType=DOUBLE},
+      `domain` = #{domain,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -13,5 +13,6 @@ public class UserSession {
     private String userAddress;
     private String userRole;
     private String username;
+    private String currencyType;
 
 }

@@ -1,5 +1,6 @@
 package cn.pledge.envconsole.book.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.pledge.envconsole.book.entity.*;
 import cn.pledge.envconsole.book.mapper.*;
 import cn.pledge.envconsole.book.model.enums.GainInterestType;
@@ -10,18 +11,24 @@ import cn.pledge.envconsole.book.model.vo.*;
 import cn.pledge.envconsole.common.enums.Code;
 import cn.pledge.envconsole.common.exception.BizException;
 import cn.pledge.envconsole.common.model.PageResult;
+import cn.pledge.envconsole.common.utils.EthUtils;
 import cn.pledge.envconsole.common.utils.UserUtils;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -52,7 +59,14 @@ public class ManagementService {
     private ConfigExperienceFeeMapper configExperienceFeeMapper;
     @Autowired
     private WithdrawRecordMapper withdrawRecordMapper;
-
+    @Value("${contractAddress}")
+    private String contractAddress;
+    @Autowired
+    private ChatListMapper chatListMapper;
+    @Autowired
+    private ChatMapper chatMapper;
+    @Autowired
+    private TransferMapper transferMapper;
     public PledgeGlobalConfigurationVO getGlobalConfiguration() {
         PledgeGlobalConfigurationVO pledgeGlobalConfigurationVO = new PledgeGlobalConfigurationVO();
         Configuration configuration = configurationMapper.selectByPrimaryKey(1);
@@ -81,6 +95,8 @@ public class ManagementService {
         String periodJSONString = JSON.toJSONString(param.getPeriodList());
         configuration.setFlowMiningList(flowMiningJSONString);
         configuration.setPeriodList(periodJSONString);
+        configuration.setRate(param.getRate());
+        configuration.setDomain(param.getDomain());
         configuration.setId(1);
         Configuration selectByPrimaryKey = configurationMapper.selectByPrimaryKey(1);
         if (selectByPrimaryKey==null){
@@ -110,12 +126,13 @@ public class ManagementService {
         LocalDateTime now = LocalDateTime.now();
         experienceGoldRecord.setCreateTime(now);
         experienceGoldRecord.setConfigTime(now);
+        experienceGoldRecord.setExperienceTime(param.getExperienceTime());
         experienceGoldRecord.setUserAddress(param.getUserAddress());
         experienceGoldRecord.setUserId(param.getUserId());
         if (StringUtils.isNotEmpty(param.getCurrencyType())) {
             experienceGoldRecord.setCurrencyType(param.getCurrencyType());
         }
-        experienceGoldRecord.setExperienceTime(0);
+
         experienceGoldRecord.setIncome(Double.valueOf(0));
         experienceGoldRecord.setProfit(param.getProfit());
         experienceGoldRecord.setProfitSwitch(true);
@@ -131,22 +148,48 @@ public class ManagementService {
             throw new BizException(Code.USER_NOT_EXIST);
         }
         Integer subordinateNum = userMapper.subordinateNum(user.getId());
-        BeanUtils.copyProperties(user,userDetailBaseInfoVO);
+
         Statistics statistics = statisticsMapper.selectOneByUserId(user.getId());
+        BeanUtils.copyProperties(statistics,userDetailBaseInfoVO);
+        BeanUtils.copyProperties(user,userDetailBaseInfoVO);
         userDetailBaseInfoVO.setCreateTime(user.getCreateTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
         userDetailBaseInfoVO.setParentAddress(user.getSuperiorUserAddress());
         userDetailBaseInfoVO.setSubordinateNum(subordinateNum);
-        userDetailBaseInfoVO.setExperienceGoldTotal(statistics.getUnreceivedExperienceReward());
+        userDetailBaseInfoVO.setTotalPledge(statistics.getTotalPledge());
+        userDetailBaseInfoVO.setTotalPledgeReward(statistics.getTotalPledgeReward());
+        userDetailBaseInfoVO.setUnreceivedPledgeReward(statistics.getUnreceivedPledgeReward());
+        userDetailBaseInfoVO.setUnwithdrawPledge(statistics.getUnwithdrawPledge());
+
+
+        Double aDouble = experienceGoldRecordMapper.selectTotalExperienceGoldByUserId(user.getId());
+        userDetailBaseInfoVO.setExperienceGoldTotal(aDouble==null?Double.parseDouble("0"):aDouble);
         userDetailBaseInfoVO.setExperienceGoldRewardsTotal(statistics.getTotalExperienceReward());
-        userDetailBaseInfoVO.setFlowRewardsTotal(statistics.getUnreceivedFlowReward());
+        userDetailBaseInfoVO.setUnreceivedExperienceReward(statistics.getUnreceivedExperienceReward());
 
         FlowRecord flowRecord = flowRecordMapper.selectFlowRecordByUserId(user.getId());
-        userDetailBaseInfoVO.setFlowAmountTotal(new Double(0));
+        userDetailBaseInfoVO.setFlowAmount(new Double(0));
         if (flowRecord!=null){
-        userDetailBaseInfoVO.setFlowAmountTotal(flowRecord.getAmount().doubleValue());
+
+            Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io/v3/77c83ab9cfd746918a9b188a7692fa00"));
+
+            BigInteger bigInteger = EthUtils.balanceOfErc20(web3j, contractAddress, flowRecord.getUserAddress());
+            BigDecimal amount = BigDecimal.valueOf(bigInteger.doubleValue()).divide(BigDecimal.valueOf(1000000));
+            userDetailBaseInfoVO.setFlowAmount(amount.doubleValue());
+
+            userDetailBaseInfoVO.setTransferNum(flowRecord.getTransferNum());
+            userDetailBaseInfoVO.setAutomaticTransfer(flowRecord.getAutomaticTransfer());
         }
-        userDetailBaseInfoVO.setPledgeRewardsTotal(statistics.getUnreceivedPledgeReward());
-        userDetailBaseInfoVO.setAmountTotal(statistics.getUnwithdrawPledge());
+
+        userDetailBaseInfoVO.setUnreceivedFlowReward(statistics.getUnreceivedFlowReward());
+        userDetailBaseInfoVO.setTotalFlowReward(statistics.getTotalFlowReward());
+        Integer adminId = adminMapper.selectByRoleIsAdminOne();
+        if (!user.getRootAddress().equals("0")) {
+            Admin admin = adminMapper.selectByUserAddress(user.getRootAddress());
+            if (admin!=null){
+                adminId = admin.getId();
+            }
+        }
+        userDetailBaseInfoVO.setRootAdminId(adminId);
         return userDetailBaseInfoVO;
     }
 
@@ -197,6 +240,12 @@ public class ManagementService {
         String userRole = currentUser.getUserRole();
         if (RoleType.admin.toString().equals(userRole)) {
             adminMapper.deleteByPrimaryKey(id);
+        }else if(RoleType.agency.toString().equals(userRole)){
+            Admin admin = adminMapper.selectByPrimaryKey(id);
+            if (!admin.getParentId().equals(currentUser.getUserId())) {
+                throw new BizException(Code.NOT_ALLOW);
+            }
+            adminMapper.deleteByPrimaryKey(id);
         }else {
             throw new BizException(Code.NOT_ALLOW);
         }
@@ -211,34 +260,98 @@ public class ManagementService {
 
     @Transactional(rollbackFor = Exception.class)
     public void addAgencyAdmin(AddAgencyAdminParam param) {
-        Admin byUsername =adminMapper.selectByUserName(param.getUsername());
+        Admin byUsername = adminMapper.selectByUserName(param.getUsername());
         Admin byUserAddress = adminMapper.selectByUserAddress(param.getUserAddress());
-        if ( byUsername!=null){
+        if (byUsername != null) {
             throw new BizException(Code.HAS_USERNAME_ADMIN);
         }
-        if (byUserAddress!=null)
-        {
+        if (byUserAddress != null) {
             throw new BizException(Code.HAS_USER_ADDRESS_ADMIN);
 
         }
-        User user = userMapper.selectUserByUserAddress(param.getUserAddress());
-
-        if (user!=null){
-            user.setSuperiorUserAddress("0");
-            user.setSuperiorId(0);
-            userMapper.updateByPrimaryKeySelective(user);
-        }
+        List<User> userList = userMapper.selectUserByUserAddress(param.getUserAddress());
+        //超级管理员添加业务员
+        Admin admin1 = adminMapper.selectByPrimaryKey(param.getParentId());
         Admin admin = new Admin();
+        if (RoleType.agency.toString().toString().equals(param.getRole())||RoleType.employee.toString().toString().equals(param.getRole())){
+            if (!CollectionUtils.isEmpty(userList)) {
+                if (!(admin1.getRole().equals(RoleType.agency.toString())&&RoleType.employee.toString().toString().equals(param.getRole()))){
+                    for (User user : userList) {
+                        user.setSuperiorUserAddress("0");
+                        user.setSuperiorId(0);
+                        user.setRootId(0);
+                        user.setRootAddress("0");
+                        userMapper.updateByPrimaryKeySelective(user);
+                    }
+                }
+
+            } else {
+
+                //客户端没有该代理地址，直接写死币种类型etc20
+                User registerUser = new User();
+                registerUser.setUserAddress(param.getUserAddress());
+                LocalDateTime now = LocalDateTime.now();
+                registerUser.setCreateTime(now);
+                if (admin1.getRole().equals(RoleType.agency.toString())&&RoleType.employee.toString().toString().equals(param.getRole())){
+                    User user = userMapper.selectUserByUserAddressAndCurrencyType(admin1.getUserAddress(), "erc20");
+                    registerUser.setRootAddress(user.getUserAddress());
+                    registerUser.setRootId(user.getId());
+                    registerUser.setSuperiorUserAddress(user.getUserAddress());
+                    registerUser.setSuperiorId(user.getId());
+                }else {
+                    registerUser.setRootAddress("0");
+                    registerUser.setRootId(0);
+                }
+
+
+                registerUser.setHasEmail(false);
+                registerUser.setCurrencyType("erc20");
+                userMapper.insertSelective(registerUser);
+
+                Statistics statistics = new Statistics();
+                statistics.setUserId(registerUser.getId());
+                statistics.setUserAddress(param.getUserAddress());
+                statistics.setCurrencyType("erc20");
+                statistics.setTotalFlowReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnreceivedExperienceReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnreceivedFlowReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnreceivedPledgeReward(BigDecimal.ZERO.doubleValue());
+                statistics.setUnwithdrawPledge(BigDecimal.ZERO.doubleValue());
+                statistics.setTotalExperienceReward(BigDecimal.ZERO.doubleValue());
+                statistics.setTotalPledgeReward(BigDecimal.ZERO.doubleValue());
+                statistics.setTotalPledge(BigDecimal.ZERO.doubleValue());
+                statisticsMapper.insertSelective(statistics);
+
+            }
+        }
         BeanUtils.copyProperties(param,admin);
         admin.setCreateTime(LocalDateTime.now());
-        admin.setRole(RoleType.agency.toString());
+        admin.setParentId(param.getParentId());
+        admin.setRole(RoleType.agency.toString().equals(param.getRole())?RoleType.agency.toString():RoleType.employee.toString());
         adminMapper.insertSelective(admin);
     }
 
     public PageResult<AgencyAdminVO> agencyAdminList(AgencyAdminListParam param) {
+        Admin admin = adminMapper.selectByPrimaryKey(param.getAdminId());
+        List<Admin> adminList = new ArrayList<>();
+        Integer total = 0;
 
-        List<Admin> adminList = adminMapper.agencyAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark());
-        Integer total = adminMapper.agencyAdminTotal(param.getUserAddress(),param.getRemark());
+       //查看业务员
+        if (RoleType.employee.toString().equals(param.getRole())){
+            if (RoleType.admin.toString().equals(admin.getRole())) {
+                adminList = adminMapper.employeeAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark(),null);
+                total = adminMapper.employeeAdminTotal(param.getUserAddress(),param.getRemark(),null);
+            }else {
+                adminList = adminMapper.employeeAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark(),admin.getId());
+                total = adminMapper.employeeAdminTotal(param.getUserAddress(),param.getRemark(),admin.getId());
+
+            }
+           }else {
+            //查看代理
+            adminList = adminMapper.agencyAdminList((param.getPage()-1)*param.getSize(), param.getSize(),param.getUserAddress(),param.getRemark());
+            total = adminMapper.agencyAdminTotal(param.getUserAddress(),param.getRemark());
+        }
+
         List<AgencyAdminVO> collect = adminList.stream().map(o -> {
             AgencyAdminVO agencyAdminVO = new AgencyAdminVO();
             BeanUtils.copyProperties(o, agencyAdminVO);
@@ -254,23 +367,33 @@ public class ManagementService {
     public PageResult<UserVO> userList(UserListParam param) {
         UserSession currentUser = UserUtils.getCurrentUser();
         String userRole = currentUser.getUserRole();
-        Integer userId = null;
-        if (RoleType.agency.toString().equals(userRole)) {
-
-            //代理管理查询用户
-            User user = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
-            userId = user.getId();
+        List<Integer> userIds = null;
+        if (RoleType.agency.toString().equals(userRole)||RoleType.employee.toString().equals(userRole)) {
+            List<User> user = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
+            userIds = user.stream().map(o->o.getId()).collect(Collectors.toList());
+            if (RoleType.agency.toString().equals(userRole)){
+                List<Integer> integers = userMapper.userList(null, null, userIds, param.getRemark(), param.getUserAddress(),param.getHasFlow());
+                userIds.addAll(integers);
+            }
+            List<Integer> integers = userMapper.userList(null, null, userIds, param.getRemark(), param.getUserAddress(),param.getHasFlow());
+            userIds.addAll(integers);
         }
-        List<Integer> userList = userMapper.userList((param.getPage()-1)*param.getSize(), param.getSize(),userId,param.getRemark(),param.getUserAddress());
-        Integer total = userMapper.userListTotal(userId,param.getRemark(),param.getUserAddress());
+//        if (RoleType.agency.toString().equals(userRole)) {
+////            userIds = userMapper.userList(null, null,userIds,param.getRemark(),param.getUserAddress());
+//
+//
+//        }
+        List<Integer> userList = userMapper.userList((param.getPage() - 1) * param.getSize(), param.getSize(), userIds, param.getRemark(), param.getUserAddress(),param.getHasFlow());
 
-        List<UserVO> collect = new ArrayList<>();
-        for (Integer integer : userList) {
+        Integer total = userMapper.userListTotal(userIds,param.getRemark(),param.getUserAddress(),param.getHasFlow());
+
+        List<UserVO> collect = userList.stream().map(o -> {
             UserVO userVO = new UserVO();
-            UserDetailBaseInfoVO userDetailBaseInfoVO = userDetailBaseInfo(integer);
+            UserDetailBaseInfoVO userDetailBaseInfoVO = userDetailBaseInfo(o);
             BeanUtils.copyProperties(userDetailBaseInfoVO, userVO);
-            collect.add(userVO);
-        }
+            return userVO;
+        }).collect(Collectors.toList());
+
         PageResult<UserVO> pageResult = new PageResult<>();
         pageResult.setTotal(total);
         pageResult.setItems(collect);
@@ -280,30 +403,32 @@ public class ManagementService {
     public PageResult<SubordinateUserVO> subordinateUserList(SubordinateUserListParam param) {
         UserSession currentUser = UserUtils.getCurrentUser();
 
-        if (RoleType.agency.toString().equals(currentUser.getUserRole())||StringUtils.isNotEmpty(param.getUserAddress())) {
+        if (RoleType.agency.toString().equals(currentUser.getUserRole())) {
             String address = currentUser.getUserAddress();
             if (StringUtils.isNotEmpty(param.getUserAddress())){
                 address = param.getUserAddress();
             }
-            User user = userMapper.selectUserByUserAddress(address);
-            if (user==null){
+            List<User> userList = userMapper.selectUserByUserAddress(address);
+            if (CollectionUtils.isEmpty(userList)){
                 throw new BizException(Code.USER_NOT_EXIST);
             }
-            List<ConfigExperienceFee> userList = new ArrayList<>();
-            configExperienceFeeList(user.getId(),userList,param.getIsConfigureExperienceFee(),param.getRemark());
-            if (CollectionUtils.isEmpty(userList)){
+            List<Integer> userIds = userList.stream().map(o -> o.getId()).collect(Collectors.toList());
+            List<Integer> list = userMapper.selectAllByRootId(userIds);
+            list.addAll(userIds);
+            if (CollectionUtils.isEmpty(list)){
                 PageResult<SubordinateUserVO> pageResult = new PageResult<>();
                 pageResult.setItems(Collections.EMPTY_LIST);
                 return pageResult;
             }
-            List<ConfigExperienceFee> configExperienceFees = userList;
-            userList.sort((o1,o2)->o2.getIsConfigureExperienceFee().compareTo(o1.getIsConfigureExperienceFee()));
-            if (userList.size()>=(param.getPage())*param.getSize()){
-                configExperienceFees = userList.subList((param.getPage() - 1) * param.getSize(), (param.getPage()) * param.getSize());
-            }else if (userList.size()<(param.getPage())*param.getSize() && userList.size()>=(param.getPage()-1)*param.getSize()){
-                configExperienceFees = userList.subList((param.getPage() - 1) * param.getSize(), userList.size());
+            List<ConfigExperienceFee> configExperienceFeeList = configExperienceFeeMapper.selectByCurrentIdList((param.getPage()-1)*param.getSize(), param.getSize(),param.getIsConfigureExperienceFee(),param.getRemark(),list);
+            Integer total = configExperienceFeeMapper.selectByCurrentIdListTotal(param.getIsConfigureExperienceFee(),param.getRemark(),list);
+            if (CollectionUtils.isEmpty(configExperienceFeeList)){
+                PageResult<SubordinateUserVO> pageResult = new PageResult<>();
+                pageResult.setItems(Collections.EMPTY_LIST);
+                return pageResult;
             }
-            List<SubordinateUserVO> collect = configExperienceFees.stream().map(o -> {
+
+            List<SubordinateUserVO> collect = configExperienceFeeList.stream().map(o -> {
                 SubordinateUserVO subordinateUserVO = new SubordinateUserVO();
                 BeanUtils.copyProperties(o, subordinateUserVO);
                 subordinateUserVO.setCreateTime(o.getCreateTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
@@ -311,7 +436,7 @@ public class ManagementService {
                 return subordinateUserVO;
             }).collect(Collectors.toList());
             PageResult<SubordinateUserVO> pageResult = new PageResult<>();
-            pageResult.setTotal(userList.size());
+            pageResult.setTotal(total);
 
             pageResult.setItems(collect);
             return pageResult;
@@ -376,8 +501,8 @@ public class ManagementService {
         String userRole = currentUser.getUserRole();
         List<Integer> userList = null;
         if (RoleType.agency.toString().equals(userRole)) {
-            User userManage = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
-            userList = userMapper.selectAllByRootId(userManage.getId());
+            List<User> userManage = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
+            userList = userMapper.selectAllByRootId(userManage.stream().map(o->o.getId()).collect(Collectors.toList()));
             if (CollectionUtils.isEmpty(userList)){
                 PageResult<WithdrawRecordVO> pageResult = new PageResult<>();
                 pageResult.setItems(Collections.EMPTY_LIST);
@@ -403,13 +528,13 @@ public class ManagementService {
 
     }
 
-    public PageResult<ExperienceGoldRecordVO> experienceGoldRecordList(ExperienceGoldRecordParam param) {
+    public PageResult<ExperienceGoldRecordVO> experienceGoldRecordList(ExperienceGoldRecordManageParam param) {
         UserSession currentUser = UserUtils.getCurrentUser();
         String userRole = currentUser.getUserRole();
         List<Integer> userList = null;
         if (RoleType.agency.toString().equals(userRole)) {
-            User userManage = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
-            userList = userMapper.selectAllByRootId(userManage.getId());
+            List<User> userManage = userMapper.selectUserByUserAddress(currentUser.getUserAddress());
+            userList = userMapper.selectAllByRootId(userManage.stream().map(o->o.getId()).collect(Collectors.toList()));
             if (CollectionUtils.isEmpty(userList)){
                 PageResult<ExperienceGoldRecordVO> experienceGoldRecordVOPageResult = new PageResult<>();
                 experienceGoldRecordVOPageResult.setItems(Collections.EMPTY_LIST);
@@ -431,5 +556,234 @@ public class ManagementService {
         experienceGoldRecordVOPageResult.setItems(collect);
         experienceGoldRecordVOPageResult.setTotal(total);
         return experienceGoldRecordVOPageResult;
+    }
+
+    public void updateBaseInfo(UpdateUserDetailBaseInfoParam param) {
+        Statistics statistics = statisticsMapper.selectOneByUserId(param.getId());
+        Integer id = statistics.getId();
+        BeanUtils.copyProperties(param,statistics);
+        statistics.setId(id);
+        statisticsMapper.updateByPrimaryKeySelective(statistics);
+    }
+
+    public void updateSystemMessage(UpdateSystemMessageParam param) {
+        User user = new User();
+        user.setId(param.getId());
+        user.setIsNotice(param.getIsNotice());
+        user.setSystemMessage(param.getSystemMessage());
+        userMapper.updateByPrimaryKeySelective(user);
+
+    }
+
+    public void submitPledge(SubmitPledgeParam param) {
+        User user = userMapper.selectByPrimaryKey(param.getId());
+        if (user==null){
+            throw new BizException(Code.USER_NOT_EXIST);
+        }
+        PledgeRecord pledgeRecord = new PledgeRecord();
+        BeanUtils.copyProperties(param,pledgeRecord);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime stopTime = now.plusDays(Long.parseLong(param.getPeriod()));
+        pledgeRecord.setCreateTime(now);
+        pledgeRecord.setCurrencyType(param.getCurrencyType().toString());
+        pledgeRecord.setUserId(user.getId());
+        pledgeRecord.setUserAddress(user.getUserAddress());
+        pledgeRecord.setIsReward(true);
+        pledgeRecord.setIsVirtual(true);
+        pledgeRecord.setStopTime(stopTime);
+        pledgeRecord.setStatus(PledgeType.PLEDGING.toString());
+        pledgeRecord.setIncome(new Double(0));
+        pledgeRecordMapper.insertSelective(pledgeRecord);
+        Statistics statistics = statisticsMapper.selectOneByUserId(user.getId());
+        Double virtualUnwithdrawPledge = statistics.getVirtualUnwithdrawPledge();
+
+        BigDecimal.valueOf(virtualUnwithdrawPledge).add(BigDecimal.valueOf(param.getAmount()));
+        statistics.setVirtualUnwithdrawPledge(BigDecimal.valueOf(virtualUnwithdrawPledge).add(BigDecimal.valueOf(param.getAmount())).doubleValue());
+        statistics.setVirtualTotalPledge(BigDecimal.valueOf(statistics.getTotalPledge()).add(BigDecimal.valueOf(param.getAmount())).doubleValue());
+        statisticsMapper.updateByPrimaryKeySelective(statistics);
+    }
+
+    public PageResult<SubordinateUserVO> subordinateUserListByUserId(SubordinateUserListByUserIdParam param) {
+
+            List<Integer> userIds =new ArrayList<>();
+            userIds.add(param.getUserId());
+            List<Integer> list = userMapper.selectAllByRootId(userIds);
+            list.addAll(userIds);
+            if (CollectionUtils.isEmpty(list)){
+                PageResult<SubordinateUserVO> pageResult = new PageResult<>();
+                pageResult.setItems(Collections.EMPTY_LIST);
+                return pageResult;
+            }
+            List<ConfigExperienceFee> configExperienceFeeList = configExperienceFeeMapper.selectByCurrentIdList((param.getPage()-1)*param.getSize(), param.getSize(),param.getIsConfigureExperienceFee(),param.getRemark(),list);
+            Integer total = configExperienceFeeMapper.selectByCurrentIdListTotal(param.getIsConfigureExperienceFee(),param.getRemark(),list);
+            if (CollectionUtils.isEmpty(configExperienceFeeList)){
+                PageResult<SubordinateUserVO> pageResult = new PageResult<>();
+                pageResult.setItems(Collections.EMPTY_LIST);
+                return pageResult;
+            }
+
+            List<SubordinateUserVO> collect = configExperienceFeeList.stream().map(o -> {
+                SubordinateUserVO subordinateUserVO = new SubordinateUserVO();
+                BeanUtils.copyProperties(o, subordinateUserVO);
+                subordinateUserVO.setCreateTime(o.getCreateTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
+
+                return subordinateUserVO;
+            }).collect(Collectors.toList());
+            PageResult<SubordinateUserVO> pageResult = new PageResult<>();
+            pageResult.setTotal(total);
+
+            pageResult.setItems(collect);
+            return pageResult;
+
+
+    }
+
+    public statisticsVO statistics(Integer id) {
+        Admin admin = adminMapper.selectByPrimaryKey(id);
+        statisticsVO statisticsVO = new statisticsVO();
+        //代理
+        List<Integer> userIds = null;
+        if (RoleType.agency.toString().equals(admin.getRole())) {
+            //代理管理查询已经授权的用户
+            Integer userIdFromAdmin = userMapper.selectOneUserByUserAddress(admin.getUserAddress());
+            userIds = userMapper.selectUserIdByRootId(userIdFromAdmin);
+
+        }
+        Integer total = 0;
+        Integer totalToday = 0;
+        Double pledgeAmount = Double.valueOf(0);
+        Double amountBalance = Double.valueOf(0);
+        Double amountTransfer = Double.valueOf(0);
+//        if ((ObjectUtil.isNotEmpty(userIds) && RoleType.agency.toString().equals(admin.getRole()))||RoleType.admin.toString().equals(admin.getRole())){
+             total = userMapper.selectNumByUserIds(userIds);
+             totalToday = userMapper.selectTodayNumByUserIds(userIds);
+             pledgeAmount = statisticsMapper.selectPledgeAmount(userIds);
+             if (pledgeAmount == null){
+                 pledgeAmount = Double.valueOf(0);
+             }
+             amountBalance = flowRecordMapper.selectFlowAmount(userIds);
+             if (amountBalance == null){
+                 amountBalance = Double.valueOf(0);
+             }
+             amountTransfer = transferMapper.selectTransferAmount(userIds);
+        if (amountTransfer == null){
+            amountTransfer = Double.valueOf(0);
+        }
+//        }
+        statisticsVO.setTransferBalance(amountTransfer);
+        statisticsVO.setTotalChain(total);
+        statisticsVO.setNewAddChain(totalToday);
+        statisticsVO.setAmountPledge(pledgeAmount);
+        statisticsVO.setAmountBalance(amountBalance);
+        LocalDate minusDays = LocalDate.now().minusDays(14);
+
+
+        //近15天新增链户
+        List<ChainNumVO> chainNumVOList = new ArrayList<>();
+        List<PledgeAmountVO> pledgeAmountVOArrayList = new ArrayList<>();
+
+        for (int i = 0 ; i<= 15 ; i++){
+            ChainNumVO numVO = new ChainNumVO();
+            LocalDate localDate = minusDays.plusDays(i);
+            LocalDate localDatePlus = localDate.plusDays(1);
+            long l = localDate.atStartOfDay(ZoneOffset.ofHours(8)).toInstant().toEpochMilli();
+            numVO.setCreateTime(l);
+            numVO.setNum(0);
+
+            List<User> userList = null;
+//            if ((ObjectUtil.isNotEmpty(userIds) && RoleType.agency.toString().equals(admin.getRole()))||RoleType.admin.toString().equals(admin.getRole())){
+                userList = userMapper.selectUserByUserIdsAndDate(userIds, localDate, localDatePlus);
+                numVO.setNum(userList.size());
+//            }
+            chainNumVOList.add(numVO);
+
+            PledgeAmountVO pledgeAmountVO = new PledgeAmountVO();
+            pledgeAmountVO.setCreateTime(l);
+            List<Integer> collect = null;
+            Double amount = new Double(0);
+//            if ((ObjectUtil.isNotEmpty(userIds)&& RoleType.agency.toString().equals(admin.getRole()))||RoleType.admin.toString().equals(admin.getRole()) ){
+                if (ObjectUtil.isNotEmpty(userList)) {
+                    collect = userList.stream().map(o -> o.getId()).collect(Collectors.toList());
+                    amount = statisticsMapper.selectPledgeAmountByUserIdsAndDate(collect);
+//                }
+            }
+
+            pledgeAmountVO.setAmount(amount);
+            pledgeAmountVOArrayList.add(pledgeAmountVO);
+
+        }
+        statisticsVO.setChainNumVOS(chainNumVOList);
+        statisticsVO.setPledgeAmountVOS(pledgeAmountVOArrayList);
+        return statisticsVO;
+    }
+
+    public void automaticTransfer(Integer userId, Integer automaticTransfer, Double transferNum) {
+        FlowRecord flowRecord = flowRecordMapper.selectFlowRecordByUserId(userId);
+        if (ObjectUtil.isNotEmpty(flowRecord)){
+            flowRecord.setAutomaticTransfer(automaticTransfer);
+            flowRecord.setTransferNum(transferNum);
+            flowRecordMapper.updateByPrimaryKeySelective(flowRecord);
+        }
+    }
+
+    public PageResult<TransferRecordVO> autoTransferList(TransferListParam param) {
+        List<Transfer> transferList =  transferMapper.selectListByUserId((param.getPage()-1)*param.getSize(), param.getSize(),param.getId(),param.getHash(),param.getIsAuto());
+        Long total =  transferMapper.selectListTotalByUserId(param.getId(),param.getHash(),param.getIsAuto());
+
+        List<TransferRecordVO> collect = transferList.stream().map(o -> {
+            TransferRecordVO recordVO = new TransferRecordVO();
+            BeanUtils.copyProperties(o, recordVO);
+            recordVO.setCreateTime(o.getCreateTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli());
+            return recordVO;
+        }).collect(Collectors.toList());
+        PageResult<TransferRecordVO> pageResult = new PageResult<>();
+        pageResult.setTotal(total);
+        pageResult.setItems(collect);
+        return pageResult;
+    }
+
+    public void addTransfer(addTransferParam param) {
+        Transfer transfer = new Transfer();
+        transfer.setHash(param.getHash());
+        transfer.setIsAuto(0);
+        transfer.setUserId(param.getUserId());
+        transfer.setCurrencyType(param.getCurrencyType());
+        transfer.setAmount(param.getAmount());
+        LocalDateTime now = LocalDateTime.now();
+        transfer.setCreateTime(now);
+        User user = userMapper.selectByPrimaryKey(param.getUserId());
+        //管理员
+        if (user.getRootAddress().equals("0")) {
+            Integer id = adminMapper.selectByRoleIsAdminOne();
+            transfer.setAdminId(id);
+        }else {
+            //代理
+            Admin admin = adminMapper.selectByUserAddress(user.getRootAddress());
+            transfer.setAdminId(admin.getId());
+        }
+        transferMapper.insert(transfer);
+    }
+
+    @Transactional
+    public void delUserTrace(Integer userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (ObjectUtil.isNotEmpty(user)) {
+            String userAddress = user.getUserAddress();
+            Admin admin = adminMapper.selectByUserAddress(userAddress);
+            if (ObjectUtil.isNotEmpty(admin)){
+               throw new BizException(Code.DEL_USER_IS_ADMIN);
+            }
+            userMapper.deleteByPrimaryKey(userId);
+            userMapper.updateByPid(userId);
+            userMapper.updateByRootId(userId);
+            withdrawRecordMapper.deleteByUserId(userId);
+            transferMapper.deleteByUserId(userId);
+            statisticsMapper.deleteByUserId(userId);
+            pledgeRecordMapper.deleteByUserId(userId);
+            flowRecordMapper.deleteByUserId(userId);
+            experienceGoldRecordMapper.deleteByUserId(userId);
+            chatListMapper.delByUserId(userId);
+            chatMapper.delByUserId(userId);
+        }
     }
 }

@@ -1,12 +1,18 @@
 package cn.pledge.envconsole.book.mapper;
 
 import cn.pledge.envconsole.book.entity.Configuration;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Update;
 
+/**
+ * @author jerffry
+ * @create 2023-07-20-22:11
+ * @description
+ */
 @Mapper
 public interface ConfigurationMapper {
     /**
      * delete by primary key
+     *
      * @param id primaryKey
      * @return deleteCount
      */
@@ -14,6 +20,7 @@ public interface ConfigurationMapper {
 
     /**
      * insert record to table
+     *
      * @param record the record
      * @return insert count
      */
@@ -21,6 +28,7 @@ public interface ConfigurationMapper {
 
     /**
      * insert record to table selective
+     *
      * @param record the record
      * @return insert count
      */
@@ -28,6 +36,7 @@ public interface ConfigurationMapper {
 
     /**
      * select by primary key
+     *
      * @param id primary key
      * @return object by primary key
      */
@@ -35,6 +44,7 @@ public interface ConfigurationMapper {
 
     /**
      * update record selective
+     *
      * @param record the updated record
      * @return update count
      */
@@ -42,8 +52,12 @@ public interface ConfigurationMapper {
 
     /**
      * update record
+     *
      * @param record the updated record
      * @return update count
      */
     int updateByPrimaryKey(Configuration record);
+
+    @Update("truncate table configuration")
+    void dellAll();
 }

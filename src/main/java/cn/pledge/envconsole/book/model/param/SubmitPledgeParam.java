@@ -13,8 +13,8 @@ import java.io.Serializable;
 @Data
 @ToString
 public class SubmitPledgeParam implements Serializable {
-    @ApiModelProperty("用户地址")
-    private String userAddress;
+    @ApiModelProperty("用户id")
+    private Integer id;
     @ApiModelProperty("质押哈希")
     private String pledgeHash;
     @ApiModelProperty("质押金额")
@@ -26,5 +26,5 @@ public class SubmitPledgeParam implements Serializable {
     private String period;
 
     @ApiModelProperty("币种类型")
-    private CurrencyType currencyType;
+    private String currencyType;
 }
